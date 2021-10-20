@@ -1,8 +1,6 @@
 require(reticulate)
 require(imager)
-if(!file.exists("MTprocess.py")){
-	Stop("Python script missing")
-}
+
 
 get_pyids=function(allnets){
 	#convert IDs into a python style
@@ -64,7 +62,7 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 	if(is.null(dcmembership)){
 		dcmembership=get_dc_membership(track)
 	}
-	
+
 	##Build dataframe of movement, splits, merges and remains between DCs.
 	#get all split events
 	newfromsplits=do.call(rbind,lapply(1:length(track$community_splits),function(slice){
@@ -74,7 +72,7 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 		}
 		do.call(rbind,lapply(currslice,function(x){
 			data.frame(slice=slice,parent=x[[1]],child=x[[2]],type=I("split"))
-		}))	
+		}))
 	}))
 
 	#get all merge events
@@ -86,9 +84,9 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 		do.call(rbind,lapply(currslice,function(x){
 			data.frame(slice=slice,parent=x[[1]],child=x[[2]],type=I("merge"))
 		}))
-			
+
 	}))
-	
+
 
 	#combine
 	comorigins=rbind(newfromsplits,merges)
@@ -102,13 +100,13 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 
 	#where we have identical splits between and merges between groups set type to move
 	comorigins$type[comorigins$moveid%in%comorigins$moveid[duplicated(comorigins$moveid)]]="move"
-		
+
 	#create remain category when parent and child are the same
 	comorigins$type[comorigins$parent==comorigins$child]="remain"
 
 	#remove the duplicate moves - also removes duplicate remains
 	comorigins=comorigins[!duplicated(comorigins$moveid)|comorigins$type%in%c("split","merge"),]
-	
+
 	#get size of moves
 	comorigins$size=sapply(1:nrow(comorigins),function(x){
 		cevent=comorigins[x,]
@@ -119,10 +117,10 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 		#individuals in parent event
 		pmembers=names(pslice[pslice==cevent$parent])
 		#individuals
-		cmembers=cmembers[cmembers%in%pmembers] 
+		cmembers=cmembers[cmembers%in%pmembers]
 		length(cmembers)
 	})
-	
+
 	if(allremains){
   	memdf=ind_membership_df(dcmembership)
   	newremains=lapply(unique(comorigins$slice),function(x){
@@ -135,16 +133,16 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
   	  if(length(missinggroups)>0){
   	    data.frame(slice=x,parent=missinggroups,child=missinggroups,type="remain",moveid=paste(x,missinggroups,missinggroups),size=sapply(missinggroups,function(y){sum(currinds$group==y)}))
   	  }
-  	  
+
    })
   	newremains=do.call(rbind,newremains)
   	comorigins=rbind(comorigins,newremains)
-  	
+
   	#reorder based on move ID, then slice
   	comorigins=comorigins[order(comorigins$moveid),]
   	comorigins=comorigins[order(comorigins$slice),]
 	}
-	
+
 	#ADD EMMIGRATION AND IMMIGRATION
 	return(comorigins)
 }
@@ -154,7 +152,7 @@ ind_membership_df=function(dcmembership){
 	memdf=do.call(rbind,lapply(1:length(dcmembership),function(x){
 		data.frame(id=names(dcmembership[[x]]),timestep=x,group=dcmembership[[x]])
 	}))
-	
+
 	##A matrix of individual group membership/presence over time
 	allids=unique(memdf$id)
 	allgroups=unique(memdf$group)
@@ -178,25 +176,25 @@ get_DC_names=function(track,inputnames,timestep){
   track$comm_group_members[[timestep]]
   allnames=lapply(1:length(track$comm_group_members[[timestep]]),function(x){
     data.frame(DC=rep(names(track$comm_group_members[[timestep]])[[x]],length(track$comm_group_members[[timestep]][[x]])),
-    cluster=track$comm_group_members[[timestep]][[x]])           
+    cluster=track$comm_group_members[[timestep]][[x]])
   })
   allnames=do.call(rbind,allnames)
-  return(allnames$DC[match(inputnames,allnames$cluster)])     
+  return(allnames$DC[match(inputnames,allnames$cluster)])
 }
 
 get_cluster_names=function(track,inputnames,timestep){
   track$comm_group_members[[timestep]]
   allnames=lapply(1:length(track$comm_group_members[[timestep]]),function(x){
     data.frame(DC=rep(names(track$comm_group_members[[timestep]])[[x]],length(track$comm_group_members[[timestep]][[x]])),
-               cluster=track$comm_group_members[[timestep]][[x]])           
+               cluster=track$comm_group_members[[timestep]][[x]])
   })
   allnames=do.call(rbind,allnames)
-  return(allnames$cluster[match(inputnames,allnames$DC)])   
+  return(allnames$cluster[match(inputnames,allnames$DC)])
 }
 
 get_similarities=function(track){
   gs=track$group_similarities
-  
+
   allsim=data.frame()
   for(i in 1:length(gs)){
     currgs=gs[[i]]
@@ -205,7 +203,7 @@ get_similarities=function(track){
     currgsf = currgs$forward
     names(currgsb)=get_DC_names(track,names(currgsb),i)
     names(currgsf)=get_DC_names(track,names(currgsf),i)
-      
+
     back=lapply(names(currgsb),function(j){
       currgroup = currgsb[[j]]
       if(is.null(currgroup)){
@@ -215,7 +213,7 @@ get_similarities=function(track){
       data.frame(timestep=i,group1=j,direction=I("backward"),timestep2=i-1,group2=names(currgroup),similarity=unlist(currgroup))
     })
     back=do.call(rbind,back)
-    
+
     forward=lapply(names(currgsf),function(j){
       currgroup = currgsf[[j]]
       if(is.null(currgroup)){
@@ -232,13 +230,13 @@ get_similarities=function(track){
 
 get_flux_colors=function(track,allcols,cols2,dcmembership=NULL,singlecol=F,movecol="red",bysource=T,singlecolremain=T,remaincol="grey"){
   #get a per slice colour vector set up for python
-  
+
 
   allflux=move_events_df(track,dcmembership,T)
-  
+
   fluxcols1=lapply(unique(allflux$slice),function(x){
     currslice=allflux[allflux$slice==x,]
-    
+
     currflux=data.frame(time=x-2,source=currslice$parent,target=currslice$child,fromlab=get_cluster_names(track,currslice$parent,x-1),tolab=get_cluster_names(track,currslice$child,x))
     if(singlecol){
       currflux$col=rgb(t(col2rgb(movecol)),maxColorValue = 255)
@@ -246,10 +244,10 @@ get_flux_colors=function(track,allcols,cols2,dcmembership=NULL,singlecol=F,movec
     if(bysource&!singlecol){
       currflux$col=allcols[match(as.numeric(currslice$parent),track$comm_all)]
     }else if(!singlecol){
-      currflux$col=allcols[match(as.numeric(currslice$child),track$comm_all)]      
+      currflux$col=allcols[match(as.numeric(currslice$child),track$comm_all)]
     }
     if(singlecolremain){
-      
+
     #remains in grey
       currflux$col[currslice$parent==currslice$child]=rgb(t(col2rgb(remaincol)),maxColorValue = 255)
     }
@@ -265,7 +263,7 @@ coldictionary=function(track,allcols){
     cols2=allcols[match(currdcs,track$comm_all)]
     py_dict(cols2,keys=0:(length(currdcs)-1))
   })
-  
+
   #nest this dictionary
   cols2=py_dict(cols1,keys=0:(length(track$dcs)-1))
   return(cols2)
@@ -278,7 +276,7 @@ get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsingleco
          labelsize=0,
          reimport=T,removefile=T,exportfilename="Rplot.png")
   {
-  
+
   cols2=coldictionary(track,allcols)
 
   fluxcols1=get_flux_colors(track=track,dcmembership=dcmembership,allcols,cols2,
@@ -295,18 +293,18 @@ get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsingleco
     if(is.null(rlabels)){
       rlabels=c(1:length(track$dcs))
     }
-	
+
     source_python("MTprocess.py")
     R_make_figure(track,cols2,figwidth,figheight,rmargins=rmargins,rstart=rstart,rstop=rstop,cwidth=cwidth,clusterlw=clusterlw,rlabels=rlabels,
                 exportfilename=exportfilename,labelsize=labelsize,
                 fluxalpha=fluxalpha,fluxfacecolor=fluxcols1$col,fluxfacefrom=fluxcols1$fromlab,fluxfaceto=fluxcols1$tolab,fluxfacets=fluxcols1$time)
     if(reimport){
-      
+
       alluplot=load.image(exportfilename)
       par(mai=c(0,0,0,0))
       plot(alluplot,axes=F,rescale=T,xaxs="i",yaxs="i",asp="varying")
       rimsize=dev.size("in")
-      
+
       par(mai=c(rmargins[2]*rimsize[2],
                 (rmargins[1]*rimsize[1])+(cwidth*((1+rstart)-1)),
                 (1-rmargins[4])*rimsize[2],
@@ -317,6 +315,6 @@ get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsingleco
     if(removefile&file.exists(exportfilename)){
       invisible(file.remove(exportfilename))
     }
-  
+
   }
 
