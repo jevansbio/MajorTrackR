@@ -37,7 +37,7 @@ get_com_pyids=function(coms){
 do_track=function(allpycoms, allpyids,history=2){
 
   cat("Do MajorTrack \n")
-  reticulate::source_python('MTprocess.py')
+  reticulate::source_python(system.file("python","MTprocess.py",package="MajorTrackR"))
 	track = R_do_track(allpycoms, allpyids, history=history)
 	return(track)
 }
