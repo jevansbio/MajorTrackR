@@ -1,5 +1,6 @@
 require(reticulate)
 require(imager)
+require(igraph)
 
 
 get_pyids=function(allnets){
@@ -35,8 +36,8 @@ get_com_pyids=function(coms){
 
 do_track=function(allpycoms, allpyids,history=2){
 
-
-	source_python("MTprocess.py")
+  cat("Do MajorTrack \n")
+  reticulate::source_python('MTprocess.py')
 	track = R_do_track(allpycoms, allpyids, history=history)
 	return(track)
 }
