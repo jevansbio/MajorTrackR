@@ -1,8 +1,3 @@
-require(reticulate)
-require(imager)
-require(igraph)
-
-
 get_pyids=function(allnets){
 	#convert IDs into a python style
 
@@ -12,7 +7,7 @@ get_pyids=function(allnets){
 		ids2=paste0("'",ids,"'")
 		ids3=paste0(ids2,collapse=",")
 		cmdstring=paste0("pyids=set({",ids3,"})")
-		py_run_string(cmdstring)
+		reticulate::py_run_string(cmdstring)
 		py$pyids
 	}))
 	return(allpyids)
@@ -27,7 +22,7 @@ get_com_pyids=function(coms){
 			ids2=paste0("'",ids,"'")
 			ids3=paste0(ids2,collapse=",")
 			cmdstring=paste0("pycoms=set({",ids3,"})")
-			py_run_string(cmdstring)
+			reticulate::py_run_string(cmdstring)
 			py$pycoms
 		})
 	})
@@ -53,7 +48,7 @@ get_dc_membership=function(track){
 add_dc_membership=function(allnets,dcmembership){
 	#apply membership of dynamic community as node attribute
 	allnets=lapply(1:length(allnets),function(x){
-		V(allnets[[x]])$DC=dcmembership[[x]][match(V(allnets[[x]])$name,names(dcmembership[[x]]))]
+		igraph::V(allnets[[x]])$DC=dcmembership[[x]][match(igraph::V(allnets[[x]])$name,names(dcmembership[[x]]))]
 		allnets[[x]]
 	})
 	return(allnets)
@@ -295,13 +290,13 @@ get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsingleco
       rlabels=c(1:length(track$dcs))
     }
 
-    source_python("MTprocess.py")
-    R_make_figure(track,cols2,figwidth,figheight,rmargins=rmargins,rstart=rstart,rstop=rstop,cwidth=cwidth,clusterlw=clusterlw,rlabels=rlabels,
+  reticulate::source_python(system.file("python","MTprocess.py",package="MajorTrackR"))
+  R_make_figure(track,cols2,figwidth,figheight,rmargins=rmargins,rstart=rstart,rstop=rstop,cwidth=cwidth,clusterlw=clusterlw,rlabels=rlabels,
                 exportfilename=exportfilename,labelsize=labelsize,
                 fluxalpha=fluxalpha,fluxfacecolor=fluxcols1$col,fluxfacefrom=fluxcols1$fromlab,fluxfaceto=fluxcols1$tolab,fluxfacets=fluxcols1$time)
     if(reimport){
 
-      alluplot=load.image(exportfilename)
+      alluplot=imager::load.image(exportfilename)
       par(mai=c(0,0,0,0))
       plot(alluplot,axes=F,rescale=T,xaxs="i",yaxs="i",asp="varying")
       rimsize=dev.size("in")
