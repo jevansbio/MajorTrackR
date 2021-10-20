@@ -1,13 +1,9 @@
 .onLoad <- function(libname, pkgname) {
-  user_permission <- utils::askYesNo("Install miniconda? downloads 50MB and takes time")
-
-  if (isTRUE(user_permission)) {
-    reticulate::install_miniconda()
-  } else {
-    message("You should run `reticulate::install_miniconda() before using this package")
+  reticulate::import("majortrack",delay_load=T)
+  if(is.null(reticulate::py_version())){
+    warnings("Python install with MajorTrack not found. \n Use reticulate::use_python to specify python install.")
   }
 }
-
 
 get_pyids=function(allnets){
 	#convert IDs into a python style
@@ -19,7 +15,7 @@ get_pyids=function(allnets){
 		ids3=paste0(ids2,collapse=",")
 		cmdstring=paste0("pyids=set({",ids3,"})")
 		reticulate::py_run_string(cmdstring)
-		py$pyids
+		reticulate::py$pyids
 	}))
 	return(allpyids)
 }
@@ -34,7 +30,7 @@ get_com_pyids=function(coms){
 			ids3=paste0(ids2,collapse=",")
 			cmdstring=paste0("pycoms=set({",ids3,"})")
 			reticulate::py_run_string(cmdstring)
-			py$pycoms
+			reticulate::py$pycoms
 		})
 	})
 	return(allpycoms)
