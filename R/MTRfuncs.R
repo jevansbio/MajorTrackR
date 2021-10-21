@@ -26,8 +26,30 @@ mt=NULL
 }
 
 
-
-#' @export
+#' Run MajorTrack algorithm
+#'
+#' \code{do_track} runs the MajorTrack algorithm for detecting dynamic communities
+#'
+#'
+#' @param allnets A list of igraph networks.
+#' @param allcoms A list of detected communities, as returned by many igraph
+#'    community detection algorithms. The list should be the same length as
+#'    allnets.
+#'    Each element of the list should be a vector of integers with the
+#'    same length as the number of vertices in the corresponding network.
+#' @param historypar An integer to set the number of time points (or slices)
+#'     the algorithm can maximally go back in time to check for majority matches.
+#' @return A MajorTrack object, which R can interpret as a list.  See
+#'   \url{https://majortrack.readthedocs.io/en/latest/api/majortrack.tracker.html}
+#'   for full details
+#'
+#'   Dynamic community membership can be extracted using \code{\link{get_dc_membership}}
+#'
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' do_track(allnets, allcoms, history=1)
 do_track=function(allnets, allcoms,historypar=2){
   allpyids = get_pyids(allnets) #convert to a list of individual IDs for each timestep in python style
   allpycoms=get_com_pyids(coms)#get community memberships in python style foreach timestep
@@ -36,7 +58,24 @@ do_track=function(allnets, allcoms,historypar=2){
 	return(track)
 }
 
-#' @export
+#' Get individual dynamic community membership from a MajorTrack object
+#'
+#' \code{get_dc_membership} extracts the per timestep dynamic communities for
+#'    each vertex.
+#'
+#'
+#' @param track A MajorTrack object as produced by \code{\link{do_track}}
+#' @param allcoms A list of detected communities, as returned by many igraph
+#' @return A list, the length of which is the number of timesteps included in
+#'    the MajorTrack object. Each element of the list is a numeric vector
+#'    indicating which dynamic community a vertex is currently a member of.
+#'
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' get_dc_membership(track)
 get_dc_membership=function(track){
 	#get per timestep memberships of dynamic community from MajorTrack return
 	dcmembership=lapply(track$individual_membership,function(x){
@@ -45,7 +84,23 @@ get_dc_membership=function(track){
 	return(dcmembership)
 }
 
-#' @export
+#' Add dynamic community membership to graphs as vertex attribute
+#'
+#' Utility function for adding dynamic community memberships to a list of igraph
+#'     networks
+#'
+#'
+#' @param allnets A list of igraph networks.
+#' @param dcmembership A list of dynamic community membership as produced by \code{\link{get_dc_membership}}
+#' @return The provided list of igraph networks with the added vertex attribute "DC"
+#'     indicating which dynamic community that vertex is currently a member of.
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' dcmembership = get_dc_membership(track)
+#' allnets = add_dc_membership(allnets, dcmembership) #overwriting original allnets
 add_dc_membership=function(allnets,dcmembership){
 	#apply membership of dynamic community as node attribute
 	allnets=lapply(1:length(allnets),function(x){
@@ -55,11 +110,52 @@ add_dc_membership=function(allnets,dcmembership){
 	return(allnets)
 }
 
-#' @export
-move_events_df=function(track,dcmembership=NULL,allremains=F){
-	if(is.null(dcmembership)){
-		dcmembership=get_dc_membership(track)
-	}
+#' Get dataframe of dynamic community changes
+#'
+#' Generate data frame of movement, splits, merges and remains between dynamic
+#'    communities.
+#'
+#'
+#' @param track A MajorTrack object as produced by \code{\link{do_track}}
+#' @param allremains Boolean indicating if remain events from dynamic
+#'     communities undergoing no change should be included in the dataframe.
+#'     Default is false.
+#' @return A dataframe consisting of 6 columns.
+#'     The first column "slice" indicates the timestep,
+#'     starting from the second timestep.
+#'
+#'     The second column "parent" indicates which dynamic community in the
+#'     previous timestep a "child" dynamic community (third column) emerged
+#'     from in the current timestep. This will be NA if the vertex is involved
+#'     in an immigration or emmigration event.
+#'
+#'
+#'     The fourth column "type" shows the type of event.
+#'     This can be a "merge" - a dynamic community being created due to two
+#'     dynamic communities joining together, a "split" - a dynamic community
+#'     emerging as the result of a single dynamic community splitting up,
+#'     a "move" - some nodes moving from one previously existing dynamic
+#'     community to previously existing another and
+#'     finally a "remain" - nodes staying in the same dynamic community as the
+#'     previous timestep.
+#'
+#'     By default, remain events only appear in the table if the parent/child
+#'     is also involved in some other event.
+#'
+#'     The fifth colum "moveid" provides a unique identifier for each event,
+#'     combining the timestep, parent and child columns.
+#'
+#'     The sixth column "size" shows how many vertices were involved in a particular event.
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' move_events_df(track)
+move_events_df=function(track,allremains=F){
+
+	dcmembership=get_dc_membership(track)
+
 
 	##Build dataframe of movement, splits, merges and remains between DCs.
 	#get all split events
@@ -142,6 +238,13 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 	}
 
 	#ADD EMMIGRATION AND IMMIGRATION
+	#For each parent check for node IDs that were not in the previous timestep but are in this one
+
+
+	#For each child check for node IDs that are in this timestep, but not in this one
+
+
+
 	return(comorigins)
 }
 

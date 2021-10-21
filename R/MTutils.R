@@ -52,11 +52,11 @@ get_cluster_names=function(track,inputnames,timestep){
 }
 
 
-get_flux_colors=function(track,allcols,cols2,dcmembership=NULL,singlecol=F,movecol="red",bysource=T,singlecolremain=T,remaincol="grey"){
+get_flux_colors=function(track,allcols,cols2,singlecol=F,movecol="red",bysource=T,singlecolremain=T,remaincol="grey"){
   #get a per slice colour vector set up for python
 
 
-  allflux=move_events_df(track,dcmembership,T)
+  allflux=move_events_df(track,T)
 
   fluxcols1=lapply(unique(allflux$slice),function(x){
     currslice=allflux[allflux$slice==x,]

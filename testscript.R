@@ -77,3 +77,7 @@ allcoms=lapply(1:length(allnets),function(x){
 
 #Do MT ----
 track <- do_track(allnets, allcoms, history=1)#run MajorTrack
+
+get_dc_membership(track)
+
+get_alluvialplot(track)
