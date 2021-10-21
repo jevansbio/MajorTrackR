@@ -1,49 +1,42 @@
+mt=NULL
+
 .onLoad <- function(libname, pkgname) {
+  packageStartupMessage("Attempting to find python install with MajorTrack library \n
+                        Use reticulate::use_python to specify a different python install")
+
+  #see if a python install with majortrack exists
   reticulate::import("majortrack",delay_load=T)
-  if(is.null(reticulate::py_version())){
-    warnings("Python install with MajorTrack not found. \n Use reticulate::use_python to specify python install.")
+  mtexists=!is.null(reticulate::py_version())
+  if(!mtexists){
+    #see if python exists at all
+    reticulate::use_python("")
+    pyexists=!is.null(reticulate::py_version())
+  }else{
+    pyexists=T
   }
+  #inform user if python and python with majortrack can be found
+  if(!pyexists&!mtexists){
+    warnings("Python install with majortrack not found. \n Use reticulate::use_python to specify correct python install")
+  }else if(pyexists & !mtexists){
+    warnings("Python install with majortrack not found. \n Install majortrack using 'pip install --upgrade git+https://github.com/j-i-l/majortrack.git' \n
+             Use reticulate::use_python to specify correct python install")
+  }
+  #import python functions
+  mt<<-reticulate::py_run_file(system.file("python","MTprocess.py",package="MajorTrackR"))
 }
 
-get_pyids=function(allnets){
-	#convert IDs into a python style
 
 
-	allpyids=(lapply(allnets,function(x){
-		ids=V(x)$name
-		ids2=paste0("'",ids,"'")
-		ids3=paste0(ids2,collapse=",")
-		cmdstring=paste0("pyids=set({",ids3,"})")
-		reticulate::py_run_string(cmdstring)
-		reticulate::py$pyids
-	}))
-	return(allpyids)
-}
-
-get_com_pyids=function(coms){
-	#convert community membership into python style
-
-	allpycoms=lapply(coms,function(x){
-		lapply(1:length(x),function(y){
-			ids=x[[y]]
-			ids2=paste0("'",ids,"'")
-			ids3=paste0(ids2,collapse=",")
-			cmdstring=paste0("pycoms=set({",ids3,"})")
-			reticulate::py_run_string(cmdstring)
-			reticulate::py$pycoms
-		})
-	})
-	return(allpycoms)
-}
-
-do_track=function(allpycoms, allpyids,history=2){
-
+#' @export
+do_track=function(allnets, allcoms,historypar=2){
+  allpyids = get_pyids(allnets) #convert to a list of individual IDs for each timestep in python style
+  allpycoms=get_com_pyids(coms)#get community memberships in python style foreach timestep
   cat("Do MajorTrack \n")
-  reticulate::source_python(system.file("python","MTprocess.py",package="MajorTrackR"))
-	track = R_do_track(allpycoms, allpyids, history=history)
+	track = mt$R_do_track(allpycoms, allpyids, history=historypar)
 	return(track)
 }
 
+#' @export
 get_dc_membership=function(track){
 	#get per timestep memberships of dynamic community from MajorTrack return
 	dcmembership=lapply(track$individual_membership,function(x){
@@ -52,6 +45,7 @@ get_dc_membership=function(track){
 	return(dcmembership)
 }
 
+#' @export
 add_dc_membership=function(allnets,dcmembership){
 	#apply membership of dynamic community as node attribute
 	allnets=lapply(1:length(allnets),function(x){
@@ -61,6 +55,7 @@ add_dc_membership=function(allnets,dcmembership){
 	return(allnets)
 }
 
+#' @export
 move_events_df=function(track,dcmembership=NULL,allremains=F){
 	if(is.null(dcmembership)){
 		dcmembership=get_dc_membership(track)
@@ -150,6 +145,7 @@ move_events_df=function(track,dcmembership=NULL,allremains=F){
 	return(comorigins)
 }
 
+#' @export
 ind_membership_df=function(dcmembership){
 	##A dataframe of individual DC membership per timestep
 	memdf=do.call(rbind,lapply(1:length(dcmembership),function(x){
@@ -171,30 +167,13 @@ ind_membership_df=function(dcmembership){
 	return(list(memdf1=memdf,memdf2=memdf2))
 }
 
+#' @export
 community_lifespans=function(track){
   unlist(track$community_lifespans)
 }
 
-get_DC_names=function(track,inputnames,timestep){
-  track$comm_group_members[[timestep]]
-  allnames=lapply(1:length(track$comm_group_members[[timestep]]),function(x){
-    data.frame(DC=rep(names(track$comm_group_members[[timestep]])[[x]],length(track$comm_group_members[[timestep]][[x]])),
-    cluster=track$comm_group_members[[timestep]][[x]])
-  })
-  allnames=do.call(rbind,allnames)
-  return(allnames$DC[match(inputnames,allnames$cluster)])
-}
 
-get_cluster_names=function(track,inputnames,timestep){
-  track$comm_group_members[[timestep]]
-  allnames=lapply(1:length(track$comm_group_members[[timestep]]),function(x){
-    data.frame(DC=rep(names(track$comm_group_members[[timestep]])[[x]],length(track$comm_group_members[[timestep]][[x]])),
-               cluster=track$comm_group_members[[timestep]][[x]])
-  })
-  allnames=do.call(rbind,allnames)
-  return(allnames$cluster[match(inputnames,allnames$DC)])
-}
-
+#' @export
 get_similarities=function(track){
   gs=track$group_similarities
 
@@ -231,47 +210,8 @@ get_similarities=function(track){
   return (allsim)
 }
 
-get_flux_colors=function(track,allcols,cols2,dcmembership=NULL,singlecol=F,movecol="red",bysource=T,singlecolremain=T,remaincol="grey"){
-  #get a per slice colour vector set up for python
 
-
-  allflux=move_events_df(track,dcmembership,T)
-
-  fluxcols1=lapply(unique(allflux$slice),function(x){
-    currslice=allflux[allflux$slice==x,]
-
-    currflux=data.frame(time=x-2,source=currslice$parent,target=currslice$child,fromlab=get_cluster_names(track,currslice$parent,x-1),tolab=get_cluster_names(track,currslice$child,x))
-    if(singlecol){
-      currflux$col=rgb(t(col2rgb(movecol)),maxColorValue = 255)
-    }
-    if(bysource&!singlecol){
-      currflux$col=allcols[match(as.numeric(currslice$parent),track$comm_all)]
-    }else if(!singlecol){
-      currflux$col=allcols[match(as.numeric(currslice$child),track$comm_all)]
-    }
-    if(singlecolremain){
-
-    #remains in grey
-      currflux$col[currslice$parent==currslice$child]=rgb(t(col2rgb(remaincol)),maxColorValue = 255)
-    }
-    currflux
-  })
-  fluxcols1=do.call(rbind,fluxcols1)
-  return (fluxcols1)
-}
-
-coldictionary=function(track,allcols){
-  cols1=lapply(1:length(track$dcs),function(x){
-    currdcs=track$dcs[[x]]#
-    cols2=allcols[match(currdcs,track$comm_all)]
-    py_dict(cols2,keys=0:(length(currdcs)-1))
-  })
-
-  #nest this dictionary
-  cols2=py_dict(cols1,keys=0:(length(track$dcs)-1))
-  return(cols2)
-}
-
+#' @export
 get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsinglecol=T,fluxmovecol="grey",fluxsinglecolremain=T,fluxremaincol="grey",
          fluxalpha=0.4,figwidth=8,figheight=2,rlabels=NULL,rstart=NULL,rstop=NULL,
          rmargins=c(0,0.2,1,1),
@@ -297,12 +237,12 @@ get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsingleco
       rlabels=c(1:length(track$dcs))
     }
 
-  reticulate::source_python(system.file("python","MTprocess.py",package="MajorTrackR"))
-  R_make_figure(track,cols2,figwidth,figheight,rmargins=rmargins,rstart=rstart,rstop=rstop,cwidth=cwidth,clusterlw=clusterlw,rlabels=rlabels,
+    mt$R_make_figure(track,cols2,figwidth,figheight,rmargins=rmargins,rstart=rstart,rstop=rstop,cwidth=cwidth,clusterlw=clusterlw,rlabels=rlabels,
                 exportfilename=exportfilename,labelsize=labelsize,
                 fluxalpha=fluxalpha,fluxfacecolor=fluxcols1$col,fluxfacefrom=fluxcols1$fromlab,fluxfaceto=fluxcols1$tolab,fluxfacets=fluxcols1$time)
     if(reimport){
-
+      opar<-par(no.readonly=TRUE)
+      on.exit(par(opar),add=TRUE,after=FALSE)
       alluplot=imager::load.image(exportfilename)
       par(mai=c(0,0,0,0))
       plot(alluplot,axes=F,rescale=T,xaxs="i",yaxs="i",asp="varying")
@@ -314,10 +254,10 @@ get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsingleco
                 ((1-rmargins[3])*rimsize[1])+(cwidth*((rstop)-length(track$dcs)))
                 ),new=T)
       plot(0,type="n",xaxs="i",yaxs="i",xlim=c(rstart+1.5,rstop+1.5)-1,ylim=c(0,1),xlab="",ylab="",axes=F)
+
     }
     if(removefile&file.exists(exportfilename)){
       invisible(file.remove(exportfilename))
     }
-
   }
 

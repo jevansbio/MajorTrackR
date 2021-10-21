@@ -75,9 +75,5 @@ allcoms=lapply(1:length(allnets),function(x){
 })
 
 
-#MT setup----
-allpyids = get_pyids(allnets) #convert to a list of individual IDs for each timestep in python style
-allpycoms=get_com_pyids(coms)#get community memberships in python style foreach timestep
-
 #Do MT ----
-track <- do_track(allpycoms, allpyids, history=1)#run MajorTrack
+track <- do_track(allnets, allcoms, history=1)#run MajorTrack
