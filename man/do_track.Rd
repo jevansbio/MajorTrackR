@@ -11,13 +11,19 @@ do_track(allnets, allcoms, historypar = 2)
 
 \item{allcoms}{A list of detected communities, as returned by many igraph
 community detection algorithms. The list should be the same length as
-allnets. Each element of the list should be a vector of integers with the
+allnets.
+Each element of the list should be a vector of integers with the
 same length as the number of vertices in the corresponding network.}
+
+\item{historypar}{An integer to set the number of time points (or slices)
+the algorithm can maximally go back in time to check for majority matches.}
 }
 \value{
-A MajorTrack object, which R can interpret as a list. See
+A MajorTrack object, which R can interpret as a list.  See
   \url{https://majortrack.readthedocs.io/en/latest/api/majortrack.tracker.html}
-  for more details
+  for full details
+
+  Dynamic community membership can be extracted using \code{\link{get_dc_membership}}
 }
 \description{
 \code{do_track} runs the MajorTrack algorithm for detecting dynamic communities

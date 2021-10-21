@@ -50,6 +50,7 @@ mt=NULL
 #' data(allnets)
 #' data(allcoms)
 #' do_track(allnets, allcoms, history=1)
+#' @export
 do_track=function(allnets, allcoms,historypar=2){
   allpyids = get_pyids(allnets) #convert to a list of individual IDs for each timestep in python style
   allpycoms=get_com_pyids(coms)#get community memberships in python style foreach timestep
@@ -76,6 +77,7 @@ do_track=function(allnets, allcoms,historypar=2){
 #' data(allcoms)
 #' track = do_track(allnets, allcoms, history=1)
 #' get_dc_membership(track)
+#' @export
 get_dc_membership=function(track){
 	#get per timestep memberships of dynamic community from MajorTrack return
 	dcmembership=lapply(track$individual_membership,function(x){
@@ -91,16 +93,20 @@ get_dc_membership=function(track){
 #'
 #'
 #' @param allnets A list of igraph networks.
-#' @param dcmembership A list of dynamic community membership as produced by \code{\link{get_dc_membership}}
-#' @return The provided list of igraph networks with the added vertex attribute "DC"
-#'     indicating which dynamic community that vertex is currently a member of.
+#' @param dcmembership A list of dynamic community membership as produced by
+#'     \code{\link{get_dc_membership}}
+#' @return The provided list of igraph networks with the added vertex attribute
+#'    "DC" indicating which dynamic community that vertex is currently a member
+#'    of.
 #'
 #' @examples
 #' data(allnets)
 #' data(allcoms)
 #' track = do_track(allnets, allcoms, history=1)
 #' dcmembership = get_dc_membership(track)
-#' allnets = add_dc_membership(allnets, dcmembership) #overwriting original allnets
+#' #add vertex attribute to allnets, overwriting original allnets
+#' allnets = add_dc_membership(allnets, dcmembership)
+#' @export
 add_dc_membership=function(allnets,dcmembership){
 	#apply membership of dynamic community as node attribute
 	allnets=lapply(1:length(allnets),function(x){
@@ -152,6 +158,7 @@ add_dc_membership=function(allnets,dcmembership){
 #' data(allcoms)
 #' track = do_track(allnets, allcoms, history=1)
 #' move_events_df(track)
+#' @export
 move_events_df=function(track,allremains=F){
 
 	dcmembership=get_dc_membership(track)
@@ -216,7 +223,7 @@ move_events_df=function(track,allremains=F){
 	})
 
 	if(allremains){
-  	memdf=ind_membership_df(dcmembership)
+  	memdf=ind_membership_df(track)
   	newremains=lapply(unique(comorigins$slice),function(x){
   	  currinds=memdf[[1]][memdf[[1]]$timestep==x,]
   	  allgroups=unique(currinds$group)
@@ -248,8 +255,52 @@ move_events_df=function(track,allremains=F){
 	return(comorigins)
 }
 
+#' Get summaries of individual dynamic community membership
+#'
+#' Generate summaries of individual vertices' dynamic community membership over
+#'     time.
+#'
+#'
+#' @param track A MajorTrack object as produced by \code{\link{do_track}}.
+#'     Not required if dcmembership is provided.
+#' @param dcmembership A list of dynamic community membership as produced by
+#'     \code{\link{get_dc_membership}}. Not required if track is provided.
+#' @return A list consisting of two objects, each showing individual dynamic
+#'   community membership in a different way.
+#'
+#'    The first object 'memdf1' is a dataframe giving timestep, individual ID and
+#'    dynamic community membership as 3 columns. This is useful for computation.
+#'
+#'    The second object 'memdf2' is a matrix with a row for
+#'    each individual and a column for each timestep.
+#'    This is an easily readable way of looking at how an individual's membership
+#'    changes over time.
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' indmembership=ind_membership_df(track)
+#'
+#' #use a dummy variable to look at how many IDs are in each combination of timestep and groupsize
+#'
+#' groupsizes=aggregate(rep(1,nrow(indmembership$memdf1))~
+#'     group+timestep,FUN=sum,data=indmembership$memdf1,drop=F)
+#' names(groupsizes)[3]="groupsize"
+#' groupsizes$groupsize[is.na(groupsizes$groupsize)]=0
+#' groupsizes
+#'
+#' #matrix of individual memberships
+#' head(indmembership$memdf2)
 #' @export
-ind_membership_df=function(dcmembership){
+ind_membership_df=function(track=NULL,dcmembership=NULL){
+  if(is.null(dcmembership)){
+    if(is.null(track)){
+      stop("No MajorTrack object of dynamic community membership")
+    }else{
+      dcmembership=get_dc_membership(track)
+    }
+  }
 	##A dataframe of individual DC membership per timestep
 	memdf=do.call(rbind,lapply(1:length(dcmembership),function(x){
 		data.frame(id=names(dcmembership[[x]]),timestep=x,group=dcmembership[[x]])
@@ -270,12 +321,63 @@ ind_membership_df=function(dcmembership){
 	return(list(memdf1=memdf,memdf2=memdf2))
 }
 
+
+#' Get dynamic community lifespans
+#'
+#' Summary of how many timesteps each dynamic community in a MajorTrack object
+#'     exists for.
+#'
+#'
+#' @param track A MajorTrack object as produced by \code{\link{do_track}}.
+#' @return Named vector giving how many timesteps each dynamic community
+#'     is present for.
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' community_lifespans(track)
 #' @export
 community_lifespans=function(track){
   unlist(track$community_lifespans)
 }
 
 
+#' Get similarity in membership between communities
+#'
+#' Summary of the similarity in membership between dynamic communities in
+#'     different timesteps, both forwards and backwards.
+#'
+#'
+#' @param track A MajorTrack object as produced by \code{\link{do_track}}.
+#' @return Dataframe of 6 columns.
+#'
+#'     The first column 'timestep' is the current timestep, to which
+#'     timesteps forwards and backwards are being compared (except in the case
+#'     of the first timestep).
+#'
+#'     The second column 'group1' is the dynamic community to which
+#'     dynamic communities in other timesteps are being compared.
+#'
+#'     The third column 'direction' shows which direction the comparison is
+#'     being made, either 'forwards' or 'backwards'
+#'
+#'     The fourth column 'timestep2' indicates in which other timestep the
+#'     comparison in being made.
+#'
+#'     The fifth column 'group2' is the dynamic community in 'timestep2' to to
+#'     which the dynamic community 'group1' is being compared to in 'timestep'
+#'
+#'     The sixth column shows the similarity in membership between the two
+#'     dynamic communities as a proportion. A value of 0 indicates that the
+#'     compared communities contain none of the same members while a value of 1
+#'     means the communities are exactly the same.
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' get_similarities(track)
 #' @export
 get_similarities=function(track){
   gs=track$group_similarities
@@ -314,18 +416,112 @@ get_similarities=function(track){
 }
 
 
+#' Plot alluvial plot of dynamic community membership
+#'
+#' Plots dynamic communities and the movements between them as an alluvial plot
+#' \url{https://en.wikipedia.org/wiki/Alluvial_diagram}
+#'
+#'
+#' @param track A MajorTrack object as produced by \code{\link{do_track}}.
+#' @param allcols A vector of colours, the same length at the number of unique
+#'     dynamic communities in the MajorTrack object. Defaults to rainbow
+#'     colours.
+#' @param fluxbysource Boolean. If TRUE, the connecting fluxes between timesteps
+#'     will be coloured the same as the dynamic community from which they
+#'     originate. Defaults to TRUE.
+#' @param fluxsinglecol Boolean. If TRUE, the connecting fluxes between
+#'     timesteps will be a single colour as defined by \code{fluxmovecol}.
+#'     Overrides fluxbysource.
+#' @param fluxmovecol Single colour of movements between different dynamic
+#'     communities in different timesteps. Defaults to "grey".
+#' @param fluxsinglecolremain Boolean. If TRUE fluxes between the same dynamic
+#'     community in different timesteps will be a single colour as defined by
+#'     \code{fluxremaincol}. Defaults to TRUE.
+#' @param fluxalpha Transparency of fluxes, where 1 is opaque and 0 is
+#'     invisible. Defaults to 0.4
+#' @param figwidth Width of figure in inches. Defaults to 8.
+#' @param figheight height of figure in inches. Defaults to 2.
+#' @param rlabels Vector of labels that, if supplied, will override the
+#'     timestep labels.
+#' @param rstart Integer specifying timestep at which to start plotting.
+#' @param rstop Integer specifying timestep at which to stop plotting.
+#' @param rmargins Vector of numbers between 0 and 1 in the format
+#'     \code{c(left,bottom,right,top)}. Specifies a rectangle in which the
+#'     alluvial plot (blocks and fluxes) is placed in the overall plotting area.
+#'     By default the alluvial plot takes up the entirety of the plotting area,
+#'      except for the bottom where a gap is left for the
+#'      labels: \code{c(0,0.2,1,1)}.
+#' @param cwidth Number between 0 and 1 defining cluster width. 0 will hide
+#'     clusters, 1 will leave no room between clusters. Defaults to 0.2
+#' @param clusterlw Number between 0 and 1 defining line width of cluster
+#'     borders.
+#'     Defaults to 0.5. Currently has no effect.
+#' @param labelsize Number defining size of per cluster labels. Defaults to 0,
+#'     hiding labels.
+#' @param reimport Boolean. If TRUE, the python figure will be imported into R.
+#'     Defaults to TRUE.
+#' @param removefile Boolean. If TRUE, the exported python figure will be
+#'     deleted when the function is finished. Defaults to TRUE.
+#' @param filename String giving the name and path of the exported file.
+#'     Defaults to "Rplot.png"
+#'
+#' @details The R function for the MT alluvial plots is a wrapper for the
+#'     python plotting functions.
+#'
+#'     If reimport is TRUE it will run the plotting
+#'     code, export an image then bring it back into R.
+#'     By default the image file will then be removed.
+#'
+#'     The code attempts to place the R margins and axis in the same positions
+#'     as those in the python plot. There is a chance this might fail on some
+#'     graphics devices. If succesful the resulting plotting device will have
+#'     an x-axis where each tick is a timestep.
+#'
+#'     Combining \code{fluxbysource}, \code{fluxsinglecol} and
+#'     \code{fluxsinglecolremain} will produce different effects.
+#'     \code{fluxsinglecol} being TRUE will colour all fluxes the
+#'     same. If \code{fluxsinglecolremain} is also TRUE, this will result in
+#'     remain fluxes being one colour and all other fluxes (moves, splits,
+#'     merges) being another colour. If \code{fluxsinglecol} is FALSE and
+#'     \code{fluxbysource} is TRUE then fluxes will be coloured by the community
+#'     they originate from.  and all other fluxes (moves, splits,
+#'     merges) being another colour. If \code{fluxsinglecol} is FALSE and
+#'     \code{fluxbysource} is also FALSE then fluxes will be coloured by
+#'     the community they are heading toward. Both these combinations can
+#'     further be combined with \code{fluxsinglecolremain} being TRUE to
+#'     separate remain fluxes and all other fluxes.
+#'
+#'
+#' @examples
+#' data(allnets)
+#' data(allcoms)
+#' track = do_track(allnets, allcoms, history=1)
+#' get_similarities(track)
 #' @export
-get_alluvialplot=function(track,dcmembership,allcols,fluxbysource=T,fluxsinglecol=T,fluxmovecol="grey",fluxsinglecolremain=T,fluxremaincol="grey",
-         fluxalpha=0.4,figwidth=8,figheight=2,rlabels=NULL,rstart=NULL,rstop=NULL,
-         rmargins=c(0,0.2,1,1),
-         cwidth=0.2,clusterlw=0.5,
-         labelsize=0,
-         reimport=T,removefile=T,exportfilename="Rplot.png")
+get_alluvialplot=function(track,allcols=NULL,
+                          fluxbysource=T,
+                          fluxsinglecol=T,
+                          fluxmovecol="grey",
+                          fluxsinglecolremain=T,
+                          fluxremaincol="grey",
+                          fluxalpha=0.4,
+                          figwidth=8,figheight=2,rlabels=NULL,
+                          rstart=NULL,rstop=NULL,
+                          rmargins=c(0,0.2,1,1),
+                          cwidth=0.2,clusterlw=0.5,
+                          labelsize=0,
+                          reimport=T,removefile=T,
+                          exportfilename="Rplot.png")
   {
+  dcmembership=get_dc_membership(track)
+
+  if(is.null(allcols)){
+    allcols=rainbow(length(unique(unlist(dcmembership))))
+  }
 
   cols2=coldictionary(track,allcols)
 
-  fluxcols1=get_flux_colors(track=track,dcmembership=dcmembership,allcols,cols2,
+  fluxcols1=get_flux_colors(track=track,allcols,cols2,
                             fluxbysource,
                           singlecol=fluxsinglecol,movecol=fluxmovecol,
                           singlecolremain=fluxsinglecolremain,remaincol=fluxremaincol)
