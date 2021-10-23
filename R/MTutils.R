@@ -85,10 +85,10 @@ coldictionary=function(track,allcols){
   cols1=lapply(1:length(track$dcs),function(x){
     currdcs=track$dcs[[x]]#
     cols2=allcols[match(currdcs,track$comm_all)]
-    py_dict(cols2,keys=0:(length(currdcs)-1))
+    reticulate::py_dict(cols2,keys=0:(length(currdcs)-1))
   })
 
   #nest this dictionary
-  cols2=py_dict(cols1,keys=0:(length(track$dcs)-1))
+  cols2=reticulate::py_dict(cols1,keys=0:(length(track$dcs)-1))
   return(cols2)
 }

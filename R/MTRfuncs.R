@@ -1,31 +1,3 @@
-mt=NULL
-
-.onLoad <- function(libname, pkgname) {
-  packageStartupMessage("Attempting to find python install with MajorTrack library \n
-                        Use reticulate::use_python to specify a different python install")
-
-  #see if a python install with majortrack exists
-  reticulate::import("majortrack",delay_load=T)
-  mtexists=!is.null(reticulate::py_version())
-  if(!mtexists){
-    #see if python exists at all
-    reticulate::use_python("")
-    pyexists=!is.null(reticulate::py_version())
-  }else{
-    pyexists=T
-  }
-  #inform user if python and python with majortrack can be found
-  if(!pyexists&!mtexists){
-    warnings("Python install with majortrack not found. \n Use reticulate::use_python to specify correct python install")
-  }else if(pyexists & !mtexists){
-    warnings("Python install with majortrack not found. \n Install majortrack using 'pip install --upgrade git+https://github.com/j-i-l/majortrack.git' \n
-             Use reticulate::use_python to specify correct python install")
-  }
-  #import python functions
-  mt<<-reticulate::py_run_file(system.file("python","MTprocess.py",package="MajorTrackR"))
-}
-
-
 #' Run MajorTrack algorithm
 #'
 #' \code{do_track} runs the MajorTrack algorithm for detecting dynamic communities
@@ -294,6 +266,7 @@ move_events_df=function(track,allremains=F){
 #' head(indmembership$memdf2)
 #' @export
 ind_membership_df=function(track=NULL,dcmembership=NULL){
+  print(dcmembership)
   if(is.null(dcmembership)){
     if(is.null(track)){
       stop("No MajorTrack object of dynamic community membership")
@@ -509,7 +482,7 @@ get_alluvialplot=function(track,allcols=NULL,
                           rstart=NULL,rstop=NULL,
                           rmargins=c(0,0.2,1,1),
                           cwidth=0.2,clusterlw=0.5,
-                          labelsize=0,
+                          labelsize=-1,
                           reimport=T,removefile=T,
                           exportfilename="Rplot.png")
   {
@@ -540,8 +513,8 @@ get_alluvialplot=function(track,allcols=NULL,
                 exportfilename=exportfilename,labelsize=labelsize,
                 fluxalpha=fluxalpha,fluxfacecolor=fluxcols1$col,fluxfacefrom=fluxcols1$fromlab,fluxfaceto=fluxcols1$tolab,fluxfacets=fluxcols1$time)
     if(reimport){
-      opar<-par(no.readonly=TRUE)
-      on.exit(par(opar),add=TRUE,after=FALSE)
+      #opar<-par(no.readonly=TRUE)
+      #on.exit(par(opar),add=TRUE,after=FALSE)
       alluplot=imager::load.image(exportfilename)
       par(mai=c(0,0,0,0))
       plot(alluplot,axes=F,rescale=T,xaxs="i",yaxs="i",asp="varying")

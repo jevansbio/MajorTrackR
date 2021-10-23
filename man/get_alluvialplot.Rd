@@ -21,7 +21,7 @@ get_alluvialplot(
   rmargins = c(0, 0.2, 1, 1),
   cwidth = 0.2,
   clusterlw = 0.5,
-  labelsize = 0,
+  labelsize = -1,
   reimport = T,
   removefile = T,
   exportfilename = "Rplot.png"
