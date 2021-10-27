@@ -321,12 +321,12 @@ individual ID and DC membership as 3 columns:
 ``` r
 head(indmembership$memdf1)
 #>    id timestep group
-#> 2   2        1     0
-#> 8   8        1     0
+#> 10 10        1     0
+#> 38 38        1     0
+#> 46 46        1     0
+#> 50 50        1     0
 #> 30 30        1     0
-#> 41 41        1     0
-#> 44 44        1     0
-#> 48 48        1     0
+#> 32 32        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -375,12 +375,12 @@ time.
 ``` r
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
-#> 2  0 0 0 7 0 6
-#> 8  0 0 0 7 0 6
+#> 10 0 0 0 7 0 6
+#> 38 0 0 0 0 8 6
+#> 46 0 0 0 0 6 6
+#> 50 0 0 0 0 6 6
 #> 30 0 0 0 0 8 6
-#> 41 0 0 0 0 6 6
-#> 44 0 0 0 0 6 6
-#> 48 0 0 0 0 6 6
+#> 32 0 0 0 0 8 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix

@@ -99,7 +99,7 @@ pip install --upgrade git+https://github.com/j-i-l/majortrack.git
 
 Once this is done, you can install the R package using:
 
-``` {r install from github}
+``` {r install from github,eval=F}
 devtools::install_git("https://github.com/jevansbio/MajorTrackR",build_vignettes = T)
 
 ```
@@ -215,7 +215,7 @@ for(i in 1:length(allnets)){
   plot(currnet,layout=l1,vertex.label="",
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 ```
 
@@ -247,7 +247,7 @@ for(i in 1:length(allnets)){
   
   plot(currnet,layout=l2[[i]],vertex.label="",vertex.color=nodecols,vertex.size=10,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 ```
 
@@ -304,10 +304,10 @@ for(i in 1:length(allnets)){
   nodecols = cols[V(currnet)$com]
   
   
-  plot(currnet,layout=l1,vertex.label=V(currnet)$com,vertex.label.color="white",vertex.label.cex=0.5,
+  plot(currnet,layout=l1,vertex.label=V(currnet)$com,vertex.label.color="white",vertex.label.cex=0.75,
        vertex.color=nodecols,vertex.size=10,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 
 cat('\n\n')
@@ -335,10 +335,10 @@ for(i in 1:length(allnets)){
   
   
   plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$com,vertex.label.color="white",
-       vertex.label.cex=0.5,
+       vertex.label.cex=0.75,
        vertex.color=nodecols,vertex.size=10,
-       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.75,
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 ```
 ## 3. Running MajorTrack
@@ -386,10 +386,10 @@ for(i in 1:length(allnets)){
   
   
   plot(currnet,layout=l1,vertex.label=V(currnet)$DC,vertex.label.color="white",
-       vertex.label.cex=0.5,
+       vertex.label.cex=0.75,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 
 cat('\n\n')
@@ -418,10 +418,10 @@ for(i in 1:length(allnets)){
   
   
   plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
-       vertex.label.cex=0.5,
+       vertex.label.cex=0.75,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 
 ```
@@ -468,10 +468,10 @@ for(i in 1:length(allnets2)){
   
   
   plot(currnet,layout=l1,vertex.label=V(currnet)$DC,vertex.label.color="white",
-       vertex.label.cex=0.5,
+       vertex.label.cex=0.75,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 
 cat('\n\n')
@@ -500,10 +500,10 @@ for(i in 1:length(allnets2)){
   
   
   plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
-       vertex.label.cex=0.5,
+       vertex.label.cex=0.75,
        vertex.color=nodecols,vertex.size=10,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 ```
 
@@ -552,9 +552,9 @@ for(i in 1:3){
   
   
   plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
-       vertex.label.cex=0.5,vertex.color=nodecols,vertex.size=10,
+       vertex.label.cex=0.75,vertex.color=nodecols,vertex.size=10,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 
 
@@ -597,9 +597,9 @@ for(i in 1:3){
   
   
   plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
-       vertex.label.cex=0.5,vertex.color=nodecols,vertex.size=10,
+       vertex.label.cex=0.75,vertex.color=nodecols,vertex.size=10,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
-       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+       edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 
 
