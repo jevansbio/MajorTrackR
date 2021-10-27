@@ -1,18 +1,80 @@
 ---
-title: "MajorTrackDoc"
+title: "MajorTrackR"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{MajorTrackDoc}
+  %\VignetteIndexEntry{MajorTrackR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(MajorTrackR)
 library(plot.matrix)
 library(igraph)
 library(ggthemes)
+
+mycircle <- function(coords, v=NULL, params) {
+  vertex.color <- params("vertex", "color")
+  if (length(vertex.color) != 1 && !is.null(v)) {
+    vertex.color <- vertex.color[v]
+  }
+  vertex.size  <- 1/200 * params("vertex", "size")
+  if (length(vertex.size) != 1 && !is.null(v)) {
+    vertex.size <- vertex.size[v]
+  }
+  vertex.frame.color <- params("vertex", "frame.color")
+  if (length(vertex.frame.color) != 1 && !is.null(v)) {
+    vertex.frame.color <- vertex.frame.color[v]
+  }
+  vertex.frame.width <- params("vertex", "frame.width")
+  if (length(vertex.frame.width) != 1 && !is.null(v)) {
+    vertex.frame.width <- vertex.frame.width[v]
+  }
+  
+  mapply(coords[,1], coords[,2], vertex.color, vertex.frame.color,
+         vertex.size, vertex.frame.width,
+         FUN=function(x, y, bg, fg, size, lwd) {
+           symbols(x=x, y=y, bg=bg, fg=fg, lwd=lwd,
+                   circles=size, add=TRUE, inches=FALSE)
+         })
+}
+
+mysquare <- function(coords, v=NULL, params) {
+  vertex.color <- params("vertex", "color")
+  if (length(vertex.color) != 1 && !is.null(v)) {
+    vertex.color <- vertex.color[v]
+  }
+  vertex.size  <- 1/100 * params("vertex", "size")
+  if (length(vertex.size) != 1 && !is.null(v)) {
+    vertex.size <- vertex.size[v]
+  }
+  vertex.frame.color <- params("vertex", "frame.color")
+  if (length(vertex.frame.color) != 1 && !is.null(v)) {
+    vertex.frame.color <- vertex.frame.color[v]
+  }
+  vertex.frame.width <- params("vertex", "frame.width")
+  if (length(vertex.frame.width) != 1 && !is.null(v)) {
+    vertex.frame.width <- vertex.frame.width[v]
+  }
+  
+  mapply(coords[,1], coords[,2], vertex.color, vertex.frame.color,
+         vertex.size, vertex.frame.width,
+         FUN=function(x, y, bg, fg, size, lwd) {
+           symbols(x=x, y=y, bg=bg, fg=fg, lwd=lwd,
+                   squares=size, add=TRUE, inches=FALSE)
+         })
+}
+
+
+
+add.vertex.shape("fcircle", clip=igraph.shape.noclip,
+		plot=mycircle, parameters=list(vertex.frame.color=1,
+                                  vertex.frame.width=1))
+
+add.vertex.shape("fsquare", clip=igraph.shape.noclip,
+		plot=mysquare, parameters=list(vertex.frame.color=1,
+                                  vertex.frame.width=1))
+
 ```
 
 ## 1. Initial setup
@@ -98,7 +160,7 @@ data(allnets)
 
 For each series of networks, I'll show both a consistent layout where nodes remain in the same place in each timestep, and a per-timestep layout where nodes will shift position depending on their social associations during that timestep.
 
-```{r plotting0,fig.cap="All networks",dpi=600,echo = F}
+```{r plotting0,fig.cap="All networks",dpi=600,echo = F,out.width="100%"}
 
 lighten <- function(color, factor = 0.5) {
   if ((factor > 1) | (factor < 0)) stop("factor needs to be within [0,1]")
@@ -132,12 +194,14 @@ for(i in 1:length(allnets)){
   #nodecols = cols[V(currnet)$group]
   nodecols = "white"
   
-  plot(currnet,layout=l1,vertex.label="",vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+  plot(currnet,layout=l1,vertex.label="",
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       vertex.color=nodecols,vertex.size=10,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 ```
 
-```{r plotting1,fig.cap="All networks",dpi=600,echo = F}
+```{r plotting1,fig.cap="All networks",dpi=600,out.width="100%",echo = F}
 
 lighten <- function(color, factor = 0.5) {
   if ((factor > 1) | (factor < 0)) stop("factor needs to be within [0,1]")
@@ -164,7 +228,8 @@ for(i in 1:length(allnets)){
   nodecols = "white"
   
   plot(currnet,layout=l2[[i]],vertex.label="",vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 ```
 
@@ -195,7 +260,7 @@ allcoms=lapply(1:length(allnets),function(x){
 
 Our node order doesn't change between networks and the communities are very clear, so the algorithm does pretty well  returning some community memberships in the same order each time. However this means some strangeness, such as in the second timestep where community 4 (green) gets reassigned as community 3 (gold), because the original community 3 merges with community 2. Though this is pretty obvious here, this might not be the case with real networks! Keeping track of a community consistently over time is one of the main advantages of majortrack   
 
-```{r plotting2,fig.cap=c("All networks with communities, consistent layout","All networks with communities, per-timestep layout"),dpi=600,echo = F}
+```{r plotting2,fig.cap=c("All networks with communities, consistent layout","All networks with communities, per-timestep layout"),dpi=600,out.width="100%",echo = F}
 
 
 par(mfrow=c(2,3),mar=c(0,0,0,0))
@@ -221,9 +286,10 @@ for(i in 1:length(allnets)){
   nodecols = cols[V(currnet)$com]
   
   
-  plot(currnet,layout=l1,vertex.label=V(currnet)$com,vertex.label.color="white",vertex.label.cex=0.75,
+  plot(currnet,layout=l1,vertex.label=V(currnet)$com,vertex.label.color="white",vertex.label.cex=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 
 cat('\n\n')
@@ -250,9 +316,11 @@ for(i in 1:length(allnets)){
   nodecols = cols[V(currnet)$com]
   
   
-  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$com,vertex.label.color="white",vertex.label.cex=0.75,
+  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$com,vertex.label.color="white",
+       vertex.label.cex=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 ```
 ## 3. Running MajorTrack
@@ -272,7 +340,7 @@ allnets = add_dc_membership(allnets,dcmembership)
 
 ```
 
-```{r plotting3,fig.cap="All networks with dynamic communities",dpi=600,echo = F}
+```{r plotting3,fig.cap="All networks with dynamic communities",dpi=600,echo = F,out.width="100%"}
 
 
 
@@ -299,9 +367,11 @@ for(i in 1:length(allnets)){
   nodecols = cols[V(currnet)$DC+1]
   
   
-  plot(currnet,layout=l1,vertex.label=V(currnet)$DC,vertex.label.color="white",vertex.label.cex=0.75,
+  plot(currnet,layout=l1,vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 
 cat('\n\n')
@@ -329,9 +399,11 @@ for(i in 1:length(allnets)){
   nodecols = cols[V(currnet)$DC+1]
   
   
-  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",vertex.label.cex=0.75,
+  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 
 ```
@@ -353,7 +425,7 @@ allnets2 = add_dc_membership(allnets,dcmembership2)
 
 ```
 
-```{r plotting4,fig.cap=c("All networks with dynamic communities with longer history parameters, fixed layout","All networks with dynamic communities with longer history parameters, per-timstep layout"),dpi=600,echo = F}
+```{r plotting4,fig.cap=c("All networks with dynamic communities with longer history parameters, fixed layout","All networks with dynamic communities with longer history parameters, per-timstep layout"),dpi=600,echo = F,out.width="100%"}
 par(mfrow=c(2,3),mar=c(0,0,0,0))
 cols=c(gdocs_pal()(10),"yellow","brickred")
 
@@ -377,9 +449,11 @@ for(i in 1:length(allnets2)){
   nodecols = cols[V(currnet)$DC+1]
   
   
-  plot(currnet,layout=l1,vertex.label=V(currnet)$DC,vertex.label.color="white",vertex.label.cex=0.75,
+  plot(currnet,layout=l1,vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 
 cat('\n\n')
@@ -407,9 +481,11 @@ for(i in 1:length(allnets2)){
   nodecols = cols[V(currnet)$DC+1]
   
   
-  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",vertex.label.cex=0.75,
+  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,
        vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 ```
 
@@ -433,7 +509,7 @@ head(comorigins, 9)#just the first two timesteps
 
 ```
 
-```{r plotting7,fig.cap=c("All networks with dynamic communities showing identifiers, fixed layout","All networks with dynamic communities with longer history parameters, per-timstep layout"),dpi=600,echo = F}
+```{r plotting7,fig.cap=c("All networks with dynamic communities showing identifiers, fixed layout","All networks with dynamic communities with longer history parameters, per-timstep layout"),dpi=600,echo = F,out.width="100%"}
 par(mfrow=c(1,3),mar=c(0,0,0,0))
 cols=c(gdocs_pal()(10),"yellow","brickred")
 
@@ -457,8 +533,10 @@ for(i in 1:3){
   nodecols = cols[V(currnet)$DC+1]
   
   
-  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",vertex.label.cex=0.75,vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,vertex.color=nodecols,vertex.size=10,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 
 
@@ -476,7 +554,7 @@ head(comorigins2, 9)#just the first two timesteps
 
 ```
 
-```{r plotting6,fig.cap=c("All networks with dynamic communities showing identifiers, fixed layout","All networks with dynamic communities with longer history parameters, per-timstep layout"),dpi=600,echo = F}
+```{r plotting6,fig.cap=c("All networks with dynamic communities showing identifiers, fixed layout","All networks with dynamic communities with longer history parameters, per-timstep layout"),dpi=600,echo = F,out.width="100%"}
 par(mfrow=c(1,3),mar=c(0,0,0,0))
 cols=c(gdocs_pal()(10),"yellow","brickred")
 
@@ -500,8 +578,10 @@ for(i in 1:3){
   nodecols = cols[V(currnet)$DC+1]
   
   
-  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",vertex.label.cex=0.75,vertex.color=nodecols,vertex.size=10,
-       edge.width=E(currnet)$weight,edge.color=edgecols)
+  plot(currnet,layout=l2[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,vertex.color=nodecols,vertex.size=10,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
 }
 
 
@@ -534,7 +614,7 @@ This is useful for computation. For example, per timestep group size:
   groupsizes=aggregate(rep(1,nrow(indmembership$memdf1))~group+timestep,FUN=sum,data=indmembership$memdf1,drop=F)
   names(groupsizes)[3]="groupsize"
   groupsizes$groupsize[is.na(groupsizes$groupsize)]=0
-  groupsizes
+  head(groupsizes,10)
 
 ```
 From which we could obtain max groupsize over time:
@@ -554,13 +634,16 @@ head(indmembership$memdf2)
 
 We could even visualise it. This is a plot using the plot.matrix library.
 
-```{r visualise matrix,echo = F}
-
-plot(indmembership$memdf2,xlab="Timestep",ylab="Individual",breaks=seq(-0.5,9.5,1),col=c(gdocs_pal()(10)),border=NA,main="",fmt.key="%s",key=NULL, axis.row=NULL)
+```{r visualise matrix,echo = F,out.width="100%",dpi=300,fig.height=2}
+par(mar=c(3,2,1,1))
+plot(indmembership$memdf2,xlab="",ylab="",breaks=seq(-0.5,9.5,1),col=c(gdocs_pal()(10)),border=NA,main="",fmt.key="%s",key=NULL, axis.row=NULL,cex.lab=0.5,cex.axis=0.5,
+     spacing.key=0.4,0.1,0)
+mtext("Timestep",1,1.5,cex=0.5)
+mtext("Individual",2,1,cex=0.5)
 
 ```
 
-However there is definitely a better way of visualisign this change over time.
+However there is definitely a better way of visualising this change over time.
 
 ## 6. Alluvial plots for visualising flow between dynamic communities.
 
@@ -570,7 +653,7 @@ The R function for the MT alluvial plots is a wrapper for the python plotting fu
 
 This is the simplest type of alluvial plot:
 
-```{r alluvial1,dpi=600,fig.width=8,fig.height=2}
+```{r alluvial1,dpi=600,fig.width=8,fig.height=2,out.width="100%"}
 
 
 
@@ -582,7 +665,7 @@ Here I provided the MajorTrack object and the vector of colours I have been usin
 
 It would be handy if we could distinguish the flows that represent individuals remaining in the same DC between timesteps in a different colour. For example:
 
-```{r alluvial2,dpi=600,fig.width=8,fig.height=2}
+```{r alluvial2,dpi=600,fig.width=8,fig.height=2,out.width="100%"}
   #Highlight all moves in blue, remain colour is still in grey
   get_alluvialplot(track,cols,fluxmovecol = "skyblue",fluxremaincol = "grey")
   
@@ -591,7 +674,7 @@ It would be handy if we could distinguish the flows that represent individuals r
 
 We can also set the flux colour depending on their source community
 
-```{r alluvial3,dpi=600,fig.width=8,fig.height=2}
+```{r alluvial3,dpi=600,fig.width=8,fig.height=2,out.width="100%"}
   
   get_alluvialplot(track,cols,fluxsinglecol = F, fluxsinglecolremain = F)
   
@@ -600,7 +683,7 @@ We can also set the flux colour depending on their source community
 
 or the target community.
 
-```{r alluvial4,dpi=600,fig.width=8,fig.height=2}
+```{r alluvial4,dpi=600,fig.width=8,fig.height=2,out.width="100%"}
   
   get_alluvialplot(track,cols,fluxsinglecol = F,fluxbysource = F, fluxsinglecolremain = F)
   
@@ -609,7 +692,7 @@ or the target community.
 
 As with above, we can choose to separate the flows representing individuals remaining in the same DC. So in this plot, the flows where individuals shift  between different communities, either due to moving or due to splitting and merging, are highlighted in the colour of the source community. 
 
-```{r alluvial5,dpi=600,fig.width=8,fig.height=2}
+```{r alluvial5,dpi=600,fig.width=8,fig.height=2,out.width="100%"}
   
   get_alluvialplot(track,cols,fluxsinglecol = F,fluxbysource = T, fluxsinglecolremain = T)
   
@@ -625,7 +708,7 @@ Control of the initial size of the exported file is controlled using the figwidt
 You can also control the width of the DCs at each timestep with the cwidth argument, where 1 results in no gap between timesteps and 0 makes the clusters disappear.
 
 
-```{r alluvial6,dpi=600,fig.width=7,fig.height=2}
+```{r alluvial6,dpi=600,fig.width=7,fig.height=2,out.width="100%"}
   get_alluvialplot(track,cols,fluxsinglecol = F,fluxbysource = T, fluxsinglecolremain = T,
                    rlabels=c("a","b","c","d","e","f"),
                    rmargins = c(0.2,0.2,0.8,0.8),
@@ -638,7 +721,7 @@ You can also control the width of the DCs at each timestep with the cwidth argum
 
 The resulting plotting device will have an x-axis where each tick is a timestep. So for example, we can plot more things on our alluvial plot:
 
-```{r alluvial7,dpi=600,fig.width=7,fig.height=2}
+```{r alluvial7,dpi=600,fig.width=7,fig.height=2,out.width="100%"}
   get_alluvialplot(track,cols,fluxsinglecol = F,fluxbysource = T, fluxsinglecolremain = T,
                    rlabels=c("a","b","c","d","e","f"),
                    rmargins = c(0.2,0.2,0.8,0.8),
@@ -647,8 +730,7 @@ The resulting plotting device will have an x-axis where each tick is a timestep.
                    )
   abline(v=c(1,3,6),lwd=2)
   
-  #TODO: EXPOSE MORE ARGUMENTS BETWEEN R AND PYTHON - CLUSTER LABELS, CLUSTER GAPS ETC.
-  
+
 ```
 
 

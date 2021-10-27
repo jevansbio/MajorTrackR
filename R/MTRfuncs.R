@@ -266,10 +266,9 @@ move_events_df=function(track,allremains=F){
 #' head(indmembership$memdf2)
 #' @export
 ind_membership_df=function(track=NULL,dcmembership=NULL){
-  print(dcmembership)
   if(is.null(dcmembership)){
     if(is.null(track)){
-      stop("No MajorTrack object of dynamic community membership")
+      stop("No MajorTrack object or dynamic community membership")
     }else{
       dcmembership=get_dc_membership(track)
     }
