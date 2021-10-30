@@ -49,6 +49,9 @@ communities in different timesteps. Defaults to "grey".}
 community in different timesteps will be a single colour as defined by
 \code{fluxremaincol}. Defaults to TRUE.}
 
+\item{fluxremaincol}{Single colour for remaining in the same dynamic
+community in different timesteps. Defaults to "grey".}
+
 \item{fluxalpha}{Transparency of fluxes, where 1 is opaque and 0 is
 invisible. Defaults to 0.4}
 
@@ -86,7 +89,7 @@ Defaults to TRUE.}
 \item{removefile}{Boolean. If TRUE, the exported python figure will be
 deleted when the function is finished. Defaults to TRUE.}
 
-\item{filename}{String giving the name and path of the exported file.
+\item{exportfilename}{String giving the name and path of the exported file.
 Defaults to "Rplot.png"}
 }
 \description{

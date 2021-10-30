@@ -8,8 +8,6 @@ get_dc_membership(track)
 }
 \arguments{
 \item{track}{A MajorTrack object as produced by \code{\link{do_track}}}
-
-\item{allcoms}{A list of detected communities, as returned by many igraph}
 }
 \value{
 A list, the length of which is the number of timesteps included in

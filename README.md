@@ -153,7 +153,7 @@ and stop are fairly straightforward. If no stop is provided, the
 algorithm will just run to the end of the timesteps.
 
 ``` r
-track <- do_track(allnets, allcoms, history=1)#run MajorTrack
+track <- do_track(allnets, coms, history=1)#run MajorTrack
 #> Do MajorTrack
 ```
 
@@ -202,7 +202,7 @@ parameter. Take a look at the same analysis run with a longer history
 parameter.
 
 ``` r
-track2 <- do_track(allnets, allcoms, history=6)#run MajorTrack
+track2 <- do_track(allnets, coms, history=6)#run MajorTrack
 #> Do MajorTrack
 dcmembership2=get_dc_membership(track2)
 allnets2 = add_dc_membership(allnets,dcmembership2)
@@ -321,12 +321,12 @@ individual ID and DC membership as 3 columns:
 ``` r
 head(indmembership$memdf1)
 #>    id timestep group
-#> 10 10        1     0
-#> 38 38        1     0
-#> 46 46        1     0
-#> 50 50        1     0
-#> 30 30        1     0
-#> 32 32        1     0
+#> 4   4        1     0
+#> 48 48        1     0
+#> 36 36        1     0
+#> 35 35        1     0
+#> 44 44        1     0
+#> 39 39        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -375,12 +375,12 @@ time.
 ``` r
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
-#> 10 0 0 0 7 0 6
-#> 38 0 0 0 0 8 6
-#> 46 0 0 0 0 6 6
-#> 50 0 0 0 0 6 6
-#> 30 0 0 0 0 8 6
-#> 32 0 0 0 0 8 6
+#> 4  0 0 0 7 0 6
+#> 48 0 0 0 0 6 6
+#> 36 0 0 0 0 8 6
+#> 35 0 0 0 0 8 6
+#> 44 0 0 0 0 6 6
+#> 39 0 0 0 0 8 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix

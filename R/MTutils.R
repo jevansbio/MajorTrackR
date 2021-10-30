@@ -4,7 +4,7 @@ get_pyids=function(allnets){
 
 
   allpyids=(lapply(allnets,function(x){
-    ids=V(x)$name
+    ids=igraph::V(x)$name
     ids2=paste0("'",ids,"'")
     ids3=paste0(ids2,collapse=",")
     cmdstring=paste0("pyids=set({",ids3,"})")
@@ -63,7 +63,7 @@ get_flux_colors=function(track,allcols,cols2,singlecol=F,movecol="red",bysource=
 
     currflux=data.frame(time=x-2,source=currslice$parent,target=currslice$child,fromlab=get_cluster_names(track,currslice$parent,x-1),tolab=get_cluster_names(track,currslice$child,x))
     if(singlecol){
-      currflux$col=rgb(t(col2rgb(movecol)),maxColorValue = 255)
+      currflux$col=grDevices::rgb(t(grDevices::col2rgb(movecol)),maxColorValue = 255)
     }
     if(bysource&!singlecol){
       currflux$col=allcols[match(as.numeric(currslice$parent),track$comm_all)]
@@ -73,7 +73,7 @@ get_flux_colors=function(track,allcols,cols2,singlecol=F,movecol="red",bysource=
     if(singlecolremain){
 
       #remains in grey
-      currflux$col[currslice$parent==currslice$child]=rgb(t(col2rgb(remaincol)),maxColorValue = 255)
+      currflux$col[currslice$parent==currslice$child]=grDevices::rgb(t(grDevices::col2rgb(remaincol)),maxColorValue = 255)
     }
     currflux
   })

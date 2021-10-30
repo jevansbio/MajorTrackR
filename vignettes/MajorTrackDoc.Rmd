@@ -328,7 +328,7 @@ for(i in 1:length(allnets)){
 To run MajorTrack we need  We also specify the history, start and stop parameters. We'll investigate history some more in a moment, but start and stop are fairly straightforward. If no stop is provided, the algorithm will just run to the end of the timesteps. 
 
 ```{r Run MajorTrack}
-track <- do_track(allnets, allcoms, history=1)#run MajorTrack
+track <- do_track(allnets, coms, history=1)#run MajorTrack
 
 ```
 
@@ -419,7 +419,7 @@ Similarly, the purple community in the final timestep has exactly the same membe
 A couple of communities exist only for a single timestep (bright pink in timestep 3, light green in timestep 4, dark red in timestep 5). The emergence of these dynamic communities is dependant on the history parameter. Take a look at the same analysis run with a longer history parameter.
 
 ```{r different history par}
-track2 <- do_track(allnets, allcoms, history=6)#run MajorTrack
+track2 <- do_track(allnets, coms, history=6)#run MajorTrack
 dcmembership2=get_dc_membership(track2)
 allnets2 = add_dc_membership(allnets,dcmembership2)
 

@@ -25,7 +25,7 @@
 #' @export
 do_track=function(allnets, allcoms,historypar=2){
   allpyids = get_pyids(allnets) #convert to a list of individual IDs for each timestep in python style
-  allpycoms=get_com_pyids(coms)#get community memberships in python style foreach timestep
+  allpycoms=get_com_pyids(allcoms)#get community memberships in python style foreach timestep
   cat("Do MajorTrack \n")
 	track = mt$R_do_track(allpycoms, allpyids, history=historypar)
 	return(track)
@@ -38,7 +38,6 @@ do_track=function(allnets, allcoms,historypar=2){
 #'
 #'
 #' @param track A MajorTrack object as produced by \code{\link{do_track}}
-#' @param allcoms A list of detected communities, as returned by many igraph
 #' @return A list, the length of which is the number of timesteps included in
 #'    the MajorTrack object. Each element of the list is a numeric vector
 #'    indicating which dynamic community a vertex is currently a member of.
@@ -257,7 +256,7 @@ move_events_df=function(track,allremains=F){
 #' #use a dummy variable to look at how many IDs are in each combination of timestep and groupsize
 #'
 #' groupsizes=aggregate(rep(1,nrow(indmembership$memdf1))~
-#'     group+timestep,FUN=sum,data=indmembership$memdf1,drop=F)
+#'     group+timestep,FUN=sum,data=indmembership$memdf1,drop=False)
 #' names(groupsizes)[3]="groupsize"
 #' groupsizes$groupsize[is.na(groupsizes$groupsize)]=0
 #' groupsizes
@@ -409,6 +408,8 @@ get_similarities=function(track){
 #' @param fluxsinglecolremain Boolean. If TRUE fluxes between the same dynamic
 #'     community in different timesteps will be a single colour as defined by
 #'     \code{fluxremaincol}. Defaults to TRUE.
+#' @param fluxremaincol Single colour for remaining in the same dynamic
+#'     community in different timesteps. Defaults to "grey".
 #' @param fluxalpha Transparency of fluxes, where 1 is opaque and 0 is
 #'     invisible. Defaults to 0.4
 #' @param figwidth Width of figure in inches. Defaults to 8.
@@ -434,7 +435,7 @@ get_similarities=function(track){
 #'     Defaults to TRUE.
 #' @param removefile Boolean. If TRUE, the exported python figure will be
 #'     deleted when the function is finished. Defaults to TRUE.
-#' @param filename String giving the name and path of the exported file.
+#' @param exportfilename String giving the name and path of the exported file.
 #'     Defaults to "Rplot.png"
 #'
 #' @details The R function for the MT alluvial plots is a wrapper for the
@@ -488,7 +489,7 @@ get_alluvialplot=function(track,allcols=NULL,
   dcmembership=get_dc_membership(track)
 
   if(is.null(allcols)){
-    allcols=rainbow(length(unique(unlist(dcmembership))))
+    allcols=grDevices::rainbow(length(unique(unlist(dcmembership))))
   }
 
   cols2=coldictionary(track,allcols)
@@ -515,16 +516,16 @@ get_alluvialplot=function(track,allcols=NULL,
       #opar<-par(no.readonly=TRUE)
       #on.exit(par(opar),add=TRUE,after=FALSE)
       alluplot=imager::load.image(exportfilename)
-      par(mai=c(0,0,0,0))
-      plot(alluplot,axes=F,rescale=T,xaxs="i",yaxs="i",asp="varying")
-      rimsize=dev.size("in")
+      graphics::par(mai=c(0,0,0,0))
+      graphics::plot(alluplot,axes=F,rescale=T,xaxs="i",yaxs="i",asp="varying")
+      rimsize=grDevices::dev.size("in")
 
-      par(mai=c(rmargins[2]*rimsize[2],
+      graphics::par(mai=c(rmargins[2]*rimsize[2],
                 (rmargins[1]*rimsize[1])+(cwidth*((1+rstart)-1)),
                 (1-rmargins[4])*rimsize[2],
                 ((1-rmargins[3])*rimsize[1])+(cwidth*((rstop)-length(track$dcs)))
                 ),new=T)
-      plot(0,type="n",xaxs="i",yaxs="i",xlim=c(rstart+1.5,rstop+1.5)-1,ylim=c(0,1),xlab="",ylab="",axes=F)
+      graphics::plot(0,type="n",xaxs="i",yaxs="i",xlim=c(rstart+1.5,rstop+1.5)-1,ylim=c(0,1),xlab="",ylab="",axes=F)
 
     }
     if(removefile&file.exists(exportfilename)){
