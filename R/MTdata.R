@@ -20,12 +20,3 @@
 #'   \item{E(timestep)}{number from 1-6 indicating the timestep}
 #' }
 "allnets"
-
-#' Generated example detected communities.
-#'
-#' Detected communities from the dataset of network data to demonstrate
-#'     MajorTrack (\code{\link{allnets}}). See vignette for code.
-#'
-#' @format A list of 6 numeric vectors, giving the community ID to which that
-#'     vertex is assigned:
-"allcoms"
