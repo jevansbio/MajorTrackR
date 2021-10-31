@@ -23,8 +23,11 @@ Utility function for adding dynamic community memberships to a list of igraph
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 dcmembership = get_dc_membership(track)
 #add vertex attribute to allnets, overwriting original allnets
 allnets = add_dc_membership(allnets, dcmembership)

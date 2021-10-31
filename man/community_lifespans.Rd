@@ -19,7 +19,10 @@ Summary of how many timesteps each dynamic community in a MajorTrack object
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 community_lifespans(track)
 }

@@ -17,7 +17,6 @@
 #'
 #' @section Data:
 #' \code{\link{allnets}},
-#' \code{\link{allcoms}}
 #'
 #' @docType package
 #' @name MajorTrackR
@@ -27,8 +26,7 @@ NULL
 mt=NULL
 
 .onLoad <- function(libname, pkgname) {
-  packageStartupMessage("Attempting to find python install with MajorTrack library \n
-                        Use reticulate::use_python to specify a different python install")
+  packageStartupMessage("Attempting to find python install with MajorTrack library \n Use reticulate::use_python to specify a different python install")
 
   #see if a python install with majortrack exists
   reticulate::import("majortrack",delay_load=T)

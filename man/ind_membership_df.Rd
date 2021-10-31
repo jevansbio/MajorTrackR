@@ -31,14 +31,17 @@ Generate summaries of individual vertices' dynamic community membership over
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 indmembership=ind_membership_df(track)
 
 #use a dummy variable to look at how many IDs are in each combination of timestep and groupsize
 
 groupsizes=aggregate(rep(1,nrow(indmembership$memdf1))~
-    group+timestep,FUN=sum,data=indmembership$memdf1,drop=F)
+    group+timestep,FUN=sum,data=indmembership$memdf1,drop=FALSE)
 names(groupsizes)[3]="groupsize"
 groupsizes$groupsize[is.na(groupsizes$groupsize)]=0
 groupsizes

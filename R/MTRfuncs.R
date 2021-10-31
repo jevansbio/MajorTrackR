@@ -20,8 +20,11 @@
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' do_track(allnets, allcoms, history=1)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' @export
 do_track=function(allnets, allcoms,historypar=2){
   allpyids = get_pyids(allnets) #convert to a list of individual IDs for each timestep in python style
@@ -45,8 +48,11 @@ do_track=function(allnets, allcoms,historypar=2){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' get_dc_membership(track)
 #' @export
 get_dc_membership=function(track){
@@ -72,8 +78,11 @@ get_dc_membership=function(track){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' dcmembership = get_dc_membership(track)
 #' #add vertex attribute to allnets, overwriting original allnets
 #' allnets = add_dc_membership(allnets, dcmembership)
@@ -126,8 +135,11 @@ add_dc_membership=function(allnets,dcmembership){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' move_events_df(track)
 #' @export
 move_events_df=function(track,allremains=F){
@@ -249,14 +261,17 @@ move_events_df=function(track,allremains=F){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' indmembership=ind_membership_df(track)
 #'
 #' #use a dummy variable to look at how many IDs are in each combination of timestep and groupsize
 #'
 #' groupsizes=aggregate(rep(1,nrow(indmembership$memdf1))~
-#'     group+timestep,FUN=sum,data=indmembership$memdf1,drop=False)
+#'     group+timestep,FUN=sum,data=indmembership$memdf1,drop=FALSE)
 #' names(groupsizes)[3]="groupsize"
 #' groupsizes$groupsize[is.na(groupsizes$groupsize)]=0
 #' groupsizes
@@ -305,8 +320,11 @@ ind_membership_df=function(track=NULL,dcmembership=NULL){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' community_lifespans(track)
 #' @export
 community_lifespans=function(track){
@@ -346,8 +364,10 @@ community_lifespans=function(track){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' get_similarities(track)
 #' @export
 get_similarities=function(track){
@@ -467,8 +487,12 @@ get_similarities=function(track){
 #'
 #' @examples
 #' data(allnets)
-#' data(allcoms)
-#' track = do_track(allnets, allcoms, history=1)
+#' data(allnets)
+#' #detect each networks communities
+#' coms=lapply(allnets,function(x){
+#'   igraph::cluster_louvain(x)
+#' })
+#' track = do_track(allnets, coms, history=1)
 #' get_similarities(track)
 #' @export
 get_alluvialplot=function(track,allcols=NULL,

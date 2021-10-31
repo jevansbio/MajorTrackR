@@ -1,0 +1,23 @@
+citHeader("To cite MajorTrackR in publications use:")
+
+citEntry(
+  entry    = "Manual",
+  title    = "MajorTrackR: R implementation of MajorTrack",
+  author   = c("Jonas I. Liechti","Julian C. Evans"),
+  year     = "2021",
+  url      = "https://github.com/jevansbio/MajorTrackR",
+  textVersion = paste(
+    "Jonas I. Liechti & Julian C. Evans. (2021). MajorTrackR: R implementation of MajorTrack"
+  )
+)
+
+  citEntry(
+  entry    = "Manual",
+  title    = " MajorTrack",
+  author   = "Jonas I. Liechti",
+  year     = "2020",
+  url      = "https://github.com/j-i-l/MajorTrack",
+  textVersion = paste(
+    "Jonas I. Liechti. (2020). j-i-l/MajorTrack: Initial release (0.1). Zenodo. https://doi.org/10     .5281/zenodo.3763119"
+  )
+)

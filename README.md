@@ -38,62 +38,8 @@ library(igraph)
 library(MajorTrackR)
 ```
 
-For this tutorial we’ll generate some network data.
-
-``` r
-#Generate a network of 200 nodes with all edges
-g1=erdos.renyi.game(n=200,p.or.m=1)
-#Assign nodes to groups
-V(g1)$name=1:200
-V(g1)$group=rep(1:4,each=50)
-E(g1)$weight = 0
-
-#repeat the network
-allnets=rep(list(g1),6)
-#move some individuals between groups
-
-
-V(allnets[[2]])$group[V(g1)$group==2]=3
-
-V(allnets[[3]])$group[V(g1)$group==2][1:20]=3
-V(allnets[[3]])$group[V(g1)$group==3][1:20]=2
-V(allnets[[3]])$group[V(g1)$group==3][21:45]=5
-V(allnets[[3]])$group[V(g1)$group==4][1:10]=1
-V(allnets[[3]])$group[V(g1)$group==4][41:50]=2
-
-V(allnets[[4]])$group[V(g1)$group==1][1:10]=4
-V(allnets[[4]])$group[V(g1)$group==3][1:20]=2
-V(allnets[[4]])$group[V(g1)$group==3][21:50]=5
-V(allnets[[4]])$group[V(g1)$group==4][1:30]=1
-V(allnets[[4]])$group[V(g1)$group==4][31:50]=2
-
-V(allnets[[5]])$group[V(g1)$group==1][1:10]=4
-V(allnets[[5]])$group[V(g1)$group==1][40:50]=5
-V(allnets[[5]])$group[V(g1)$group==3][1:20]=2
-V(allnets[[5]])$group[V(g1)$group==3][21:50]=5
-
-#V(allnets[[6]])$group[V(g1)$group==3][1:20]=2
-V(allnets[[6]])$group[V(g1)$group==3][30:50]=1
-
-
-#alter edge weights depending on if nodes they are in the same group, delete 0 edges
-for(i in 1:length(allnets)){
-  currdatalist=as_data_frame(allnets[[i]],"both")
-  currdata=as_long_data_frame(allnets[[i]])
-  currdata$same_group=currdata$from_group==currdata$to_group
-  currdata$group=0
-  currdata$group[currdata$same_group]=currdata$from_group[currdata$same_group]
-  currdata$weight[currdata$same_group]=sample(c(0.9,0.7),sum(currdata$same_group),replace=T,prob=c(0.5,0.5))
-  currdata$weight[!currdata$same_group]=sample(c(0,0.05),sum(!currdata$same_group),replace=T,prob=c(0.95,0.05))
-  currdata=currdata[currdata$weight>0,]
-  currdata=currdata[order(currdata$weight),]
-  currdata$timestep=i
-  currdatalist$vertices$timestep=i
-  allnets[[i]]=graph_from_data_frame(currdata,directed=F,currdatalist$vertices)
-}
-```
-
-You can also access a very similar dataset directly from the package:
+For this tutorial we’ll use some generated network data. See the full
+vignette for the code to generate this from scratch.
 
 ``` r
 data(allnets)
@@ -321,12 +267,12 @@ individual ID and DC membership as 3 columns:
 ``` r
 head(indmembership$memdf1)
 #>    id timestep group
-#> 4   4        1     0
-#> 48 48        1     0
-#> 36 36        1     0
-#> 35 35        1     0
-#> 44 44        1     0
-#> 39 39        1     0
+#> 9   9        1     0
+#> 45 45        1     0
+#> 49 49        1     0
+#> 22 22        1     0
+#> 1   1        1     0
+#> 23 23        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -375,18 +321,18 @@ time.
 ``` r
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
-#> 4  0 0 0 7 0 6
-#> 48 0 0 0 0 6 6
-#> 36 0 0 0 0 8 6
-#> 35 0 0 0 0 8 6
-#> 44 0 0 0 0 6 6
-#> 39 0 0 0 0 8 6
+#> 9  0 0 0 7 0 6
+#> 45 0 0 0 0 6 6
+#> 49 0 0 0 0 6 6
+#> 22 0 0 0 0 8 6
+#> 1  0 0 0 7 0 6
+#> 23 0 0 0 0 8 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix
 library.
 
-<img src="man/figures/README-visualise matrix-1.png" width="100%" />
+<img src="man/figures/README-visualisematrix-1.png" width="100%" />
 
 However there is definitely a better way of visualising this change over
 time.

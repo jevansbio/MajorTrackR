@@ -24,6 +24,5 @@ R interface for the majortrack python library for carrying out dynamic
 \section{Data}{
 
 \code{\link{allnets}},
-\code{\link{allcoms}}
 }
 

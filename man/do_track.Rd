@@ -30,6 +30,9 @@ A MajorTrack object, which R can interpret as a list.  See
 }
 \examples{
 data(allnets)
-data(allcoms)
-do_track(allnets, allcoms, history=1)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 }

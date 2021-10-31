@@ -20,7 +20,10 @@ A list, the length of which is the number of timesteps included in
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 get_dc_membership(track)
 }

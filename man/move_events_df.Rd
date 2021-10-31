@@ -47,7 +47,10 @@ Generate data frame of movement, splits, merges and remains between dynamic
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 move_events_df(track)
 }

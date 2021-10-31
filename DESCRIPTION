@@ -16,7 +16,7 @@ Description: R interface for the majortrack python library for carrying out dyna
 	See: https://majortrack.readthedocs.io/en/latest/ for python documentation.
 	See: https://arxiv.org/abs/1912.04261 for associated paper.
 URL: https://github.com/jevansbio/MajorTrackR
-License: GPL-3.0 License 
+License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
 Imports: 

@@ -39,7 +39,9 @@ Summary of the similarity in membership between dynamic communities in
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 get_similarities(track)
 }

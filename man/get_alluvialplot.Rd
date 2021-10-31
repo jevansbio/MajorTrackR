@@ -125,7 +125,11 @@ The R function for the MT alluvial plots is a wrapper for the
 }
 \examples{
 data(allnets)
-data(allcoms)
-track = do_track(allnets, allcoms, history=1)
+data(allnets)
+#detect each networks communities
+coms=lapply(allnets,function(x){
+  igraph::cluster_louvain(x)
+})
+track = do_track(allnets, coms, history=1)
 get_similarities(track)
 }
