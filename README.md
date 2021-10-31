@@ -12,7 +12,7 @@ See: <https://arxiv.org/abs/1912.04261> for associated paper.
 
 ## Installation
 
-MajorTrackR requires a python install (3+) with MajorTrackR installed.
+MajorTrackR requires a python install (3+) with [MajorTrack](https://github.com/j-i-l/MajorTrack) installed.
 Most common scientific python distributions such as Anaconda sould be
 fine. Once you have python installed, you can install MajorTrack from
 the [github repository](https://github.com/j-i-l/MajorTrack). Using pip
