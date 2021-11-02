@@ -12,7 +12,7 @@ See: <https://arxiv.org/abs/1912.04261> for associated paper.
 
 ## Installation
 
-MajorTrackR requires a python install (3+) with [MajorTrack](https://github.com/j-i-l/MajorTrack) installed.
+MajorTrackR requires a python install (3+) with MajorTrackR installed.
 Most common scientific python distributions such as Anaconda sould be
 fine. Once you have python installed, you can install MajorTrack from
 the [github repository](https://github.com/j-i-l/MajorTrack). Using pip
@@ -266,12 +266,12 @@ individual ID and DC membership as 3 columns:
 ``` r
 head(indmembership$memdf1)
 #>    id timestep group
+#> 40 40        1     0
 #> 9   9        1     0
-#> 37 37        1     0
-#> 19 19        1     0
+#> 42 42        1     0
+#> 4   4        1     0
 #> 31 31        1     0
-#> 13 13        1     0
-#> 15 15        1     0
+#> 47 47        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -320,12 +320,12 @@ time.
 ``` r
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
+#> 40 0 0 0 0 6 6
 #> 9  0 0 0 7 0 6
-#> 37 0 0 0 0 8 6
-#> 19 0 0 0 0 8 6
+#> 42 0 0 0 0 6 6
+#> 4  0 0 0 7 0 6
 #> 31 0 0 0 0 8 6
-#> 13 0 0 0 0 8 6
-#> 15 0 0 0 0 8 6
+#> 47 0 0 0 0 6 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix
