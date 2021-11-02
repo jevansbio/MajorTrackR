@@ -372,13 +372,13 @@ for(i in 1:length(allnets)){
 
 You'll immediately notice a few things. First, this time round there is no reassigning of communities in the same timestep just because the number of communities has changed. The dynamic community remains the same. 
 
-You might also notice that the merging and  splitting of communities results in completely new dynamic communities being "created", such as the purple community in timestep 2 when the yellow and red communities merge. In this case, this is because  both merging communities were exactly the same size. The algorithm is therefore unable to decide which community merges with which and assigns them a new community
+You might also notice that the merging and  splitting of communities results in completely new dynamic communities being "created", such as the purple community in timestep 2 when the yellow and red communities merge. This is due to the significant change in membership to the red community.
 
 This slower transition eventually results in the membership of the dark blue community completely changing by the last timestep. The dark blue community in the final timestep has exactly the same membership as the dark green community from the first timestep. The membership has essentially "swapped" due to the gradual change in membership. 
 
 Similarly, the purple community in the final timestep has exactly the same membership as the bright red community in the first timestep. In this case, the original community was "destroyed" during merging. The purple community then gradually changes membership until it reflected the original "destroyed" community. MajorTrack will not recover destroyed communities even if they have the same membership.
 
-A couple of communities exist only for a single timestep (bright pink in timestep 3, light green in timestep 4, dark red in timestep 5). The emergence of these dynamic communities is dependant on the history parameter. Take a look at the same analysis run with a longer history parameter.
+A couple of communities exist only for a single timestep (purple in timestep 2, light green in timestep 4, dark red in timestep 5). The emergence of these dynamic communities is dependent on the history parameter. Take a look at the same analysis run with a longer history parameter.
 
 ```{r different history par}
 track2 <- do_track(allnets, coms, history=6)#run MajorTrack

@@ -124,9 +124,8 @@ same.
 You might also notice that the merging and splitting of communities
 results in completely new dynamic communities being “created”, such as
 the purple community in timestep 2 when the yellow and red communities
-merge. In this case, this is because both merging communities were
-exactly the same size. The algorithm is therefore unable to decide which
-community merges with which and assigns them a new community
+merge. This is due to the significant change in membership to the red
+community.
 
 This slower transition eventually results in the membership of the dark
 blue community completely changing by the last timestep. The dark blue
@@ -141,9 +140,9 @@ purple community then gradually changes membership until it reflected
 the original “destroyed” community. MajorTrack will not recover
 destroyed communities even if they have the same membership.
 
-A couple of communities exist only for a single timestep (bright pink in
-timestep 3, light green in timestep 4, dark red in timestep 5). The
-emergence of these dynamic communities is dependant on the history
+A couple of communities exist only for a single timestep (purple in
+timestep 2, light green in timestep 4, dark red in timestep 5). The
+emergence of these dynamic communities is dependent on the history
 parameter. Take a look at the same analysis run with a longer history
 parameter.
 
@@ -197,15 +196,15 @@ MajorTrack run with a history parameter of 1.
 comorigins = move_events_df(track)
 head(comorigins, 9)#just the first two timesteps
 #>    slice parent child   type moveid size
-#> 24     2      1     4  merge  2 1 4   50
-#> 25     2      2     4  merge  2 2 4   50
-#> 26     3      0     0 remain  3 0 0   50
-#> 4      3      3     0   move  3 3 0   10
-#> 5      3      3     3 remain  3 3 3   30
-#> 6      3      3     4   move  3 3 4   10
-#> 1      3      4     4 remain  3 4 4   50
-#> 2      3      4     5  split  3 4 5   25
-#> 3      3      4     6  split  3 4 6   25
+#> 1      2      1     2   move  2 1 2   45
+#> 2      2      1     4  split  2 1 4    5
+#> 27     2      2     2 remain  2 2 2   50
+#> 28     3      0     0 remain  3 0 0   50
+#> 3      3      2     2 remain  3 2 2   45
+#> 4      3      2     5  split  3 2 5   25
+#> 5      3      2     6  split  3 2 6   25
+#> 6      3      3     0   move  3 3 0   10
+#> 7      3      3     2   move  3 3 2   10
 ```
 
 <img src="man/figures/README-plotting7-1.png" title="All networks with dynamic communities showing identifiers, fixed layout" alt="All networks with dynamic communities showing identifiers, fixed layout" width="100%" />
@@ -226,15 +225,15 @@ the longer history parameter.
 comorigins2 = move_events_df(track2)
 head(comorigins2, 9)#just the first two timesteps
 #>    slice parent child   type moveid size
-#> 21     2      1     4  merge  2 1 4   50
-#> 22     2      2     4  merge  2 2 4   50
-#> 23     3      0     0 remain  3 0 0   50
-#> 3      3      3     0   move  3 3 0   10
-#> 4      3      3     3 remain  3 3 3   30
-#> 5      3      3     4   move  3 3 4   10
-#> 1      3      4     4 remain  3 4 4   75
-#> 2      3      4     6  split  3 4 6   25
-#> 27     4      0     0 remain  4 0 0   60
+#> 1      2      1     2   move  2 1 2   45
+#> 2      2      1     4  split  2 1 4    5
+#> 24     2      2     2 remain  2 2 2   50
+#> 25     3      0     0 remain  3 0 0   50
+#> 3      3      2     2 remain  3 2 2   70
+#> 4      3      2     6  split  3 2 6   25
+#> 5      3      3     0   move  3 3 0   10
+#> 6      3      3     2   move  3 3 2   10
+#> 7      3      3     3 remain  3 3 3   30
 ```
 
 <img src="man/figures/README-plotting6-1.png" title="All networks with dynamic communities showing identifiers, fixed layout" alt="All networks with dynamic communities showing identifiers, fixed layout" width="100%" />
@@ -248,7 +247,7 @@ function:
 ``` r
 community_lifespans(track)
 #> 0 1 2 3 4 5 6 7 8 9 
-#> 6 1 1 3 5 1 4 1 1 1
+#> 6 1 6 3 1 1 4 1 1 1
 ```
 
 ## Get data about per individual dynamic community membership
@@ -268,11 +267,11 @@ individual ID and DC membership as 3 columns:
 head(indmembership$memdf1)
 #>    id timestep group
 #> 9   9        1     0
-#> 45 45        1     0
-#> 49 49        1     0
-#> 22 22        1     0
-#> 1   1        1     0
-#> 23 23        1     0
+#> 37 37        1     0
+#> 19 19        1     0
+#> 31 31        1     0
+#> 13 13        1     0
+#> 15 15        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -303,9 +302,9 @@ aggregate(groupsize~group,FUN=max,data=groupsizes)
 #>    group groupsize
 #> 1      0        70
 #> 2      1        50
-#> 3      2        50
+#> 3      2        95
 #> 4      3        50
-#> 5      4       100
+#> 5      4         5
 #> 6      5        25
 #> 7      6        71
 #> 8      7        10
@@ -322,11 +321,11 @@ time.
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
 #> 9  0 0 0 7 0 6
-#> 45 0 0 0 0 6 6
-#> 49 0 0 0 0 6 6
-#> 22 0 0 0 0 8 6
-#> 1  0 0 0 7 0 6
-#> 23 0 0 0 0 8 6
+#> 37 0 0 0 0 8 6
+#> 19 0 0 0 0 8 6
+#> 31 0 0 0 0 8 6
+#> 13 0 0 0 0 8 6
+#> 15 0 0 0 0 8 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix

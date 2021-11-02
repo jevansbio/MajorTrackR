@@ -111,7 +111,7 @@ allnets=rep(list(g1),6)
 #move some individuals between groups
 
 
-V(allnets[[2]])$group[V(g1)$group==2]=3
+V(allnets[[2]])$group[V(g1)$group==2][1:45]=3
 
 V(allnets[[3]])$group[V(g1)$group==2][1:20]=3
 V(allnets[[3]])$group[V(g1)$group==3][1:20]=2
@@ -194,7 +194,7 @@ for(i in 1:length(allnets)){
   #nodecols = cols[V(currnet)$group]
   nodecols = "white"
   
-  plot(currnet,layout=l1,vertex.label="",
+  plot(currnet,layout=l1,vertex.label=V(currnet)$group,
        vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
        vertex.color=nodecols,vertex.size=10,
        edge.width=E(currnet)$weight/2,edge.color=edgecols)
@@ -410,13 +410,13 @@ for(i in 1:length(allnets)){
 
 You'll immediately notice a few things. First, this time round there is no reassigning of communities in the same timestep just because the number of communities has changed. The dynamic community remains the same. 
 
-You might also notice that the merging and  splitting of communities results in completely new dynamic communities being "created", such as the purple community in timestep 2 when the yellow and red communities merge. In this case, this is because  both merging communities were exactly the same size. The algorithm is therefore unable to decide which community merges with which and assigns them a new community
+You might also notice that the merging and  splitting of communities results in completely new dynamic communities being "created", such as the purple community in timestep 2 when the yellow and red communities merge. This is due to the significant change in membership to the red community.
 
 This slower transition eventually results in the membership of the dark blue community completely changing by the last timestep. The dark blue community in the final timestep has exactly the same membership as the dark green community from the first timestep. The membership has essentially "swapped" due to the gradual change in membership. 
 
 Similarly, the purple community in the final timestep has exactly the same membership as the bright red community in the first timestep. In this case, the original community was "destroyed" during merging. The purple community then gradually changes membership until it reflected the original "destroyed" community. MajorTrack will not recover destroyed communities even if they have the same membership.
 
-A couple of communities exist only for a single timestep (bright pink in timestep 3, light green in timestep 4, dark red in timestep 5). The emergence of these dynamic communities is dependant on the history parameter. Take a look at the same analysis run with a longer history parameter.
+A couple of communities exist only for a single timestep (purple in timestep 2, light green in timestep 4, dark red in timestep 5). The emergence of these dynamic communities is dependent on the history parameter. Take a look at the same analysis run with a longer history parameter.
 
 ```{r different history par}
 track2 <- do_track(allnets, coms, history=6)#run MajorTrack
@@ -489,7 +489,7 @@ for(i in 1:length(allnets2)){
 }
 ```
 
-Here, the bright pink and light green communities never emerge. The longer history parameter leads to MajorTrack recognising these as being part of the dark blue and purple communities, as  they merge back into these communities in the subsequent timestep. The dark red community in timestep 4 remains however, as these individuals then merge with the light blue community, rather than returning to the dark blue community.
+Here, the bright pink and light green communities never emerge. The longer history parameter leads to MajorTrack recognising these as being part of the dark blue and yellow communities, as  they merge back into these communities in the subsequent timestep. The dark red community in timestep 4 remains however, as these individuals then merge with the light blue community, rather than returning to the dark blue community.
 
 ## 4. Getting more information about where dynamic communities come from
 
@@ -733,4 +733,162 @@ The resulting plotting device will have an x-axis where each tick is a timestep.
 
 ```
 
+## 7. Borderline cases
 
+Here we show off a few particular cases and how the algorithm deals with them. First we generate some similar data. Note that here two equally sized groups merge in timestep 2.
+
+```{r generate networks borderline}
+#Generate a network of 200 nodes with all edges
+g1=erdos.renyi.game(n=200,p.or.m=1)
+#Assign nodes to groups
+V(g1)$name=1:200
+V(g1)$group=rep(1:4,each=50)
+E(g1)$weight = 0
+
+#repeat the network
+allnets3=rep(list(g1),6)
+#move some individuals between groups
+
+
+V(allnets3[[2]])$group[V(g1)$group==2]=3
+
+V(allnets3[[3]])$group[V(g1)$group==2][1:20]=3
+V(allnets3[[3]])$group[V(g1)$group==3][1:20]=2
+V(allnets3[[3]])$group[V(g1)$group==3][21:45]=5
+V(allnets3[[3]])$group[V(g1)$group==4][1:10]=1
+V(allnets3[[3]])$group[V(g1)$group==4][41:50]=2
+
+V(allnets3[[4]])$group[V(g1)$group==1][1:10]=4
+V(allnets3[[4]])$group[V(g1)$group==3][1:20]=2
+V(allnets3[[4]])$group[V(g1)$group==3][21:50]=5
+V(allnets3[[4]])$group[V(g1)$group==4][1:30]=1
+V(allnets3[[4]])$group[V(g1)$group==4][31:50]=2
+
+V(allnets3[[5]])$group[V(g1)$group==1][1:10]=4
+V(allnets3[[5]])$group[V(g1)$group==1][40:50]=5
+V(allnets3[[5]])$group[V(g1)$group==3][1:20]=2
+V(allnets3[[5]])$group[V(g1)$group==3][21:50]=5
+
+#V(allnets[[6]])$group[V(g1)$group==3][1:20]=2
+V(allnets3[[6]])$group[V(g1)$group==3][30:50]=1
+
+
+#alter edge weights depending on if nodes they are in the same group, delete 0 edges
+for(i in 1:length(allnets3)){
+  currdatalist=as_data_frame(allnets3[[i]],"both")
+  currdata=as_long_data_frame(allnets3[[i]])
+  currdata$same_group=currdata$from_group==currdata$to_group
+  currdata$group=0
+  currdata$group[currdata$same_group]=currdata$from_group[currdata$same_group]
+  currdata$weight[currdata$same_group]=sample(c(0.9,0.7),sum(currdata$same_group),replace=T,prob=c(0.5,0.5))
+  currdata$weight[!currdata$same_group]=sample(c(0,0.05),sum(!currdata$same_group),replace=T,prob=c(0.95,0.05))
+  currdata=currdata[currdata$weight>0,]
+  currdata=currdata[order(currdata$weight),]
+  currdata$timestep=i
+  currdatalist$vertices$timestep=i
+  allnets3[[i]]=graph_from_data_frame(currdata,directed=F,currdatalist$vertices)
+}
+
+```
+
+Detect communities.
+
+```{r Detect communities borderline}
+#detect each networks communities
+coms3=lapply(allnets3,function(x){
+	cluster_louvain(x)
+})
+
+
+#apply community membership as node attribute
+allnets3=lapply(1:length(allnets3),function(x){
+	V(allnets3[[x]])$com=coms3[[x]]$membership
+	allnets3[[x]]
+})
+
+#Do MajorTrack
+track3 <- do_track(allnets3, coms3, history=2)#run MajorTrack
+dcmembership3=get_dc_membership(track3)
+allnets3 = add_dc_membership(allnets3,dcmembership3)
+
+
+```
+
+
+Here are the resulting networks with the dynamic communities.
+
+```{r borderline plotting3,fig.cap="All networks with dynamic communities",dpi=600,echo = F,out.width="100%"}
+
+l3=layout_with_graphopt(allnets3[[1]],niter=1500,charge=0.02,mass=30,spring.length = 0, max.sa.movement	= 5)
+l4=list()
+l4[[1]]=l3
+for(i in 2:length(allnets3)){
+  currnet=allnets3[[i]]
+  l4[[i]]=layout_with_graphopt(currnet,start=l4[[i-1]],niter=1500,charge=0.02,mass=30,spring.length = 0, max.sa.movement	= 5)
+}
+
+par(mfrow=c(2,3),mar=c(0,0,0,0))
+cols=c(gdocs_pal()(10),"yellow")
+
+
+for(i in 1:length(allnets3)){
+  currnet=allnets3[[i]]
+  
+  currdatalist=as_data_frame(currnet,"both")
+  currdata=as_long_data_frame(currnet)
+  currdata$same_DC=currdata$from_DC==currdata$to_DC
+  currdata$DC=-1
+  currdata$DC[currdata$same_DC]=currdata$from_DC[currdata$same_DC]
+  currdata=currdata[order(currdata$weight),]
+  currnet=graph_from_data_frame(currdata,directed=F,currdatalist$vertices)
+  
+  edgecols=rgb(colorRamp(c("grey","black"))(E(currnet)$weight),maxColorValue=256)
+  for(j in unique(E(currnet)$DC[E(currnet)$DC!=-1])){
+    currcol=cols[j+1]
+    edgecols[E(currnet)$DC==j]=rgb(colorRamp(c(lighten(currcol,0.9),currcol))(E(currnet)$weight[E(currnet)$DC==j]),maxColorValue=256)
+  }  
+  nodecols = cols[V(currnet)$DC+1]
+  
+  
+  plot(currnet,layout=l3,vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       vertex.color=nodecols,vertex.size=10,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+}
+
+cat('\n\n')
+
+par(mfrow=c(2,3),mar=c(0,0,0,0))
+cols=c(gdocs_pal()(10),"yellow")
+
+
+for(i in 1:length(allnets3)){
+  currnet=allnets3[[i]]
+  
+  currdatalist=as_data_frame(currnet,"both")
+  currdata=as_long_data_frame(currnet)
+  currdata$same_DC=currdata$from_DC==currdata$to_DC
+  currdata$DC=-1
+  currdata$DC[currdata$same_DC]=currdata$from_DC[currdata$same_DC]
+  currdata=currdata[order(currdata$weight),]
+  currnet=graph_from_data_frame(currdata,directed=F,currdatalist$vertices)
+  
+  edgecols=rgb(colorRamp(c("grey","black"))(E(currnet)$weight),maxColorValue=256)
+  for(j in unique(E(currnet)$DC[E(currnet)$DC!=-1])){
+    currcol=cols[j+1]
+    edgecols[E(currnet)$DC==j]=rgb(colorRamp(c(lighten(currcol,0.9),currcol))(E(currnet)$weight[E(currnet)$DC==j]),maxColorValue=256)
+  }  
+  nodecols = cols[V(currnet)$DC+1]
+  
+  
+  plot(currnet,layout=l4[[i]],vertex.label=V(currnet)$DC,vertex.label.color="white",
+       vertex.label.cex=0.5,
+       vertex.shape="fcircle",vertex.frame.color="black",vertex.frame.width=0.5,
+       vertex.color=nodecols,vertex.size=10,
+       edge.width=E(currnet)$weight/2,edge.color=edgecols)
+}
+
+```
+
+Note that rather than one community remaining during the merging of the yellow and red communities in timestep 2 as the purple community in timestep 2 when the yellow and red communities merge. In this case, this is because  both merging communities were exactly the same size. The algorithm is therefore unable to decide which community merges with which and assigns them a new community
