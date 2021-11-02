@@ -1,4 +1,6 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # MajorTrackR
 
 R interface for the majortrack python library for carrying out dynamic
@@ -264,12 +266,12 @@ individual ID and DC membership as 3 columns:
 ``` r
 head(indmembership$memdf1)
 #>    id timestep group
-#> 50 50        1     0
-#> 22 22        1     0
-#> 47 47        1     0
-#> 27 27        1     0
-#> 19 19        1     0
-#> 25 25        1     0
+#> 33 33        1     0
+#> 29 29        1     0
+#> 40 40        1     0
+#> 32 32        1     0
+#> 28 28        1     0
+#> 46 46        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -318,12 +320,12 @@ time.
 ``` r
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
-#> 50 0 0 0 0 6 6
-#> 22 0 0 0 0 8 6
-#> 47 0 0 0 0 6 6
-#> 27 0 0 0 0 8 6
-#> 19 0 0 0 0 8 6
-#> 25 0 0 0 0 8 6
+#> 33 0 0 0 0 8 6
+#> 29 0 0 0 0 8 6
+#> 40 0 0 0 0 6 6
+#> 32 0 0 0 0 8 6
+#> 28 0 0 0 0 8 6
+#> 46 0 0 0 0 6 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix
