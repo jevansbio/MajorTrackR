@@ -207,7 +207,7 @@ move_events_df=function(track,allremains=F){
 
 	if(allremains){
   	memdf=ind_membership_df(track)
-  	newremains=lapply(unique(comorigins$slice),function(x){
+  	newremains=lapply(unique(memdf$memdf1$timestep),function(x){
   	  currinds=memdf[[1]][memdf[[1]]$timestep==x,]
   	  allgroups=unique(currinds$group)
   	  previnds=memdf[[1]][memdf[[1]]$timestep==x-1,]
@@ -218,7 +218,7 @@ move_events_df=function(track,allremains=F){
   	    data.frame(slice=x,parent=missinggroups,child=missinggroups,type="remain",moveid=paste(x,missinggroups,missinggroups),size=sapply(missinggroups,function(y){sum(currinds$group==y)}))
   	  }
 
-   })
+   	})
   	newremains=do.call(rbind,newremains)
   	comorigins=rbind(comorigins,newremains)
 
