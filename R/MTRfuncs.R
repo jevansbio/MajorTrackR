@@ -519,7 +519,7 @@ get_alluvialplot=function(track,allcols=NULL,
   cols2=coldictionary(track,allcols)
 
   fluxcols1=get_flux_colors(track=track,allcols,cols2,
-                            fluxbysource,
+                            bysource=fluxbysource,
                           singlecol=fluxsinglecol,movecol=fluxmovecol,
                           singlecolremain=fluxsinglecolremain,remaincol=fluxremaincol)
 
