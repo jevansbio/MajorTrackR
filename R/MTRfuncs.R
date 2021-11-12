@@ -128,7 +128,10 @@ add_dc_membership=function(allnets,dcmembership){
 #'     By default, remain events only appear in the table if the parent/child
 #'     is also involved in some other event.
 #'
-#'     The fifth colum "moveid" provides a unique identifier for each event,
+#'	 parent2 and child2 give the internally used group ID for a DC. Some DCs can have
+#'	 multiple groups assigned to them.
+#'
+#'     The column "moveid" provides a unique identifier for each event,
 #'     combining the timestep, parent and child columns.
 #'
 #'     The sixth column "size" shows how many vertices were involved in a particular event.
@@ -175,39 +178,65 @@ move_events_df=function(track,allremains=F){
 	#combine
 	comorigins=rbind(newfromsplits,merges)
 
+	#add extra labels
+
+	grouplabs=lapply(unique(comorigins$slice),function(x){
+		parent2=data.frame(type=I("parent"),slice=x,get_cluster_names(track,
+			inputnames=unique(comorigins$parent[comorigins$slice==x]),
+			x-1))
+		child2=data.frame(type=I("child"),slice=x,get_cluster_names(track,
+			inputnames=unique(comorigins$child[comorigins$slice==x]),
+			x))
+		rbind(parent2,child2)		
+	})
+	grouplabs=do.call(rbind,grouplabs)
+
+	#check for missing GROUPS that have been assigned to the same DC
+	
+	comorigins=lapply(unique(comorigins$slice),function(x){
+		currdat=comorigins[comorigins$slice==x,]
+		#multiple parents
+		multiparents=lapply(1:nrow(currdat),function(y){
+			multilabs=grouplabs[grouplabs$slice==x&grouplabs$type=="parent"&grouplabs$DC==currdat$parent[y],]
+			newdf=currdat[y,]
+			newdf=data.frame(newdf,parent2=multilabs$cluster,row.names=NULL)
+			newdf
+		})
+		multiparents=do.call(rbind,multiparents)
+		multichild=lapply(1:nrow(multiparents),function(y){
+			multilabs=grouplabs[grouplabs$slice==x&grouplabs$type=="child"&grouplabs$DC==multiparents$child[y],]
+			newdf=multiparents[y,]
+			newdf=data.frame(newdf,child2=multilabs$cluster,row.names=NULL)
+			newdf
+		})				
+		do.call(rbind,multichild)
+	})
+
+	comorigins=do.call(rbind,comorigins)
+
 	#create unique move id
-	comorigins$moveid=paste(comorigins$slice,comorigins$parent,comorigins$child)
+	comorigins$moveid=paste(comorigins$slice,comorigins$parent,comorigins$child,comorigins$parent2,comorigins$child2)
 
 	#reorder based on move ID, then slice
 	comorigins=comorigins[order(comorigins$moveid),]
-	comorigins=comorigins[order(comorigins$slice),]
+	comorigins=comorigins[order(comorigins$slice),]	
 
 	#where we have identical splits between and merges between groups set type to move
 	comorigins$type[comorigins$moveid%in%comorigins$moveid[duplicated(comorigins$moveid)]]="move"
 
 	#create remain category when parent and child are the same
-	comorigins$type[comorigins$parent==comorigins$child]="remain"
+	comorigins$type[comorigins$parent2==comorigins$child2]="remain"
 
 	#remove the duplicate moves - also removes duplicate remains
 	comorigins=comorigins[!duplicated(comorigins$moveid)|comorigins$type%in%c("split","merge"),]
 
-	#get size of moves
-	comorigins$size=sapply(1:nrow(comorigins),function(x){
-		cevent=comorigins[x,]
-		cslice=dcmembership[[cevent$slice]]
-		#individuals in child event
-		cmembers=names(cslice[cslice==cevent$child])
-		pslice=dcmembership[[cevent$slice-1]]
-		#individuals in parent event
-		pmembers=names(pslice[pslice==cevent$parent])
-		#individuals
-		cmembers=cmembers[cmembers%in%pmembers]
-		length(cmembers)
-	})
+
+
+
 
 	if(allremains){
   	memdf=ind_membership_df(track)
-  	newremains=lapply(unique(memdf$memdf1$timestep),function(x){
+  	newremains=lapply(2:max(memdf$memdf1$timestep),function(x){
   	  currinds=memdf[[1]][memdf[[1]]$timestep==x,]
   	  allgroups=unique(currinds$group)
   	  previnds=memdf[[1]][memdf[[1]]$timestep==x-1,]
@@ -215,7 +244,36 @@ move_events_df=function(track,allremains=F){
   	  #get groups existing in previous timestep but not in comorigins
   	  missinggroups=allgroups[!allgroups%in%comorigins$child[comorigins$slice==x]&allgroups%in%allprevgroups]
   	  if(length(missinggroups)>0){
-  	    data.frame(slice=x,parent=missinggroups,child=missinggroups,type="remain",moveid=paste(x,missinggroups,missinggroups),size=sapply(missinggroups,function(y){sum(currinds$group==y)}))
+  	    	df1=data.frame(slice=x,parent=missinggroups,child=missinggroups,type="remain")
+		
+		parent2=data.frame(type=I("parent"),slice=x,get_cluster_names(track,
+			inputnames=unique(df1$parent[df1$slice==x]),
+			x-1))
+		child2=data.frame(type=I("child"),slice=x,get_cluster_names(track,
+			inputnames=unique(df1$child[df1$slice==x]),
+			x))
+		grouplabs=rbind(parent2,child2)		
+
+		#check for missing GROUPS that have been assigned to the same DC
+
+		currdat=df1
+		#multiple parents
+		multiparents=lapply(1:nrow(currdat),function(y){
+			multilabs=grouplabs[grouplabs$slice==x&grouplabs$type=="parent"&grouplabs$DC==currdat$parent[y],]
+			newdf=currdat[y,]
+			newdf=data.frame(newdf,parent2=multilabs$cluster,row.names=NULL)
+			newdf
+		})
+		multiparents=do.call(rbind,multiparents)
+		multichild=lapply(1:nrow(multiparents),function(y){
+			multilabs=grouplabs[grouplabs$slice==x&grouplabs$type=="child"&grouplabs$DC==multiparents$child[y],]
+			newdf=multiparents[y,]
+			newdf=data.frame(newdf,child2=multilabs$cluster,row.names=NULL)
+			newdf
+		})				
+		multichild=do.call(rbind,multichild)
+		multichild$moveid=paste(multichild$slice,multichild$parent,multichild$child,multichild$parent2,multichild$child2)	
+		return(multichild)
   	  }
 
    	})
@@ -226,6 +284,25 @@ move_events_df=function(track,allremains=F){
   	comorigins=comorigins[order(comorigins$moveid),]
   	comorigins=comorigins[order(comorigins$slice),]
 	}
+
+	#get size of moves
+	comorigins$size=sapply(1:nrow(comorigins),function(x){
+		cevent=comorigins[x,]
+		cslice=unlist(track$individual_group_membership[[cevent$slice]])
+		#individuals in child event
+		cmembers=names(cslice[cslice==cevent$child2])
+		pslice=unlist(track$individual_group_membership[[cevent$slice-1]])
+		#individuals in parent event
+		pmembers=names(pslice[pslice==cevent$parent2])
+		#individuals
+		cmembers=cmembers[cmembers%in%pmembers]
+		length(cmembers)
+	})
+
+	#remove moves with zero members 
+	comorigins=comorigins[comorigins$size>0,]
+
+
 
 	#ADD EMMIGRATION AND IMMIGRATION
 	#For each parent check for node IDs that were not in the previous timestep but are in this one
@@ -251,8 +328,9 @@ move_events_df=function(track,allremains=F){
 #' @return A list consisting of two objects, each showing individual dynamic
 #'   community membership in a different way.
 #'
-#'    The first object 'memdf1' is a dataframe giving timestep, individual ID and
-#'    dynamic community membership as 3 columns. This is useful for computation.
+#'    The first object 'memdf1' is a dataframe giving timestep, individual ID,
+#'    dynamic community membership and internal group ID as 4 columns. 
+#'	This is useful for computation.
 #'
 #'    The second object 'memdf2' is a matrix with a row for
 #'    each individual and a column for each timestep.
@@ -289,7 +367,10 @@ ind_membership_df=function(track=NULL,dcmembership=NULL){
   }
 	##A dataframe of individual DC membership per timestep
 	memdf=do.call(rbind,lapply(1:length(dcmembership),function(x){
-		data.frame(id=names(dcmembership[[x]]),timestep=x,group=dcmembership[[x]])
+		df1=data.frame(id=names(dcmembership[[x]]),timestep=x,group=dcmembership[[x]])
+		cslice=unlist(track$individual_group_membership[[x]])
+		df1$group2=cslice[match(df1$id,names(cslice))]
+		df1
 	}))
 
 	##A matrix of individual group membership/presence over time
@@ -513,7 +594,7 @@ get_alluvialplot=function(track,allcols=NULL,
   dcmembership=get_dc_membership(track)
 
   if(is.null(allcols)){
-    allcols=grDevices::rainbow(length(unique(unlist(dcmembership))))
+    allcols=grDevices::rainbow(length(track$comm_all))
   }
 
   cols2=coldictionary(track,allcols)

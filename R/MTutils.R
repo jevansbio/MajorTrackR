@@ -2,7 +2,6 @@
 get_pyids=function(allnets){
   #convert IDs into a python style
 
-
   allpyids=(lapply(allnets,function(x){
     ids=igraph::V(x)$name
     ids2=paste0("'",ids,"'")
@@ -48,7 +47,7 @@ get_cluster_names=function(track,inputnames,timestep){
                cluster=track$comm_group_members[[timestep]][[x]])
   })
   allnames=do.call(rbind,allnames)
-  return(allnames$cluster[match(inputnames,allnames$DC)])
+  return(do.call(rbind,lapply(inputnames,function(x){allnames[allnames$DC==x,]})))
 }
 
 
@@ -61,7 +60,7 @@ get_flux_colors=function(track,allcols,cols2,singlecol=F,movecol="red",bysource=
   fluxcols1=lapply(unique(allflux$slice),function(x){
     currslice=allflux[allflux$slice==x,]
 
-    currflux=data.frame(time=x-2,source=currslice$parent,target=currslice$child,fromlab=get_cluster_names(track,currslice$parent,x-1),tolab=get_cluster_names(track,currslice$child,x))
+    currflux=data.frame(time=x-2,source=currslice$parent,target=currslice$child,fromlab=currslice$parent2,tolab=currslice$child2)
     if(singlecol){
       currflux$col=grDevices::rgb(t(grDevices::col2rgb(movecol)),maxColorValue = 255)
     }

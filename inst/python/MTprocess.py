@@ -66,7 +66,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 		cluster_width= cwidth,
 		cluster_facecolor=cols,
 		cluster_edgecolor=[0,0,0],
-		with_cluster_labels= True,
+		with_cluster_labels= labelsize>0,
 		cluster_label= 'group_index',
 		cluster_label_margin= (0, 1),
 		x_axis_offset= 1,
