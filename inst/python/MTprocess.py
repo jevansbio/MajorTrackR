@@ -51,7 +51,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 		#print (new_cols)
 		fluxfacecolor=new_cols
 	
-	timestepit=iter(range(rstart, rstop))
+	timestepit=range(int(rstart), int(rstop))
 
 	#define figure size 
 	fig1 = plt.figure(figsize=(figwidth,figheight),dpi=600)

@@ -187,12 +187,12 @@ move_events_df=function(track,allremains=F){
 		child2=data.frame(type=I("child"),slice=x,get_cluster_names(track,
 			inputnames=unique(comorigins$child[comorigins$slice==x]),
 			x))
-		rbind(parent2,child2)		
+		rbind(parent2,child2)
 	})
 	grouplabs=do.call(rbind,grouplabs)
 
 	#check for missing GROUPS that have been assigned to the same DC
-	
+
 	comorigins=lapply(unique(comorigins$slice),function(x){
 		currdat=comorigins[comorigins$slice==x,]
 		#multiple parents
@@ -208,7 +208,7 @@ move_events_df=function(track,allremains=F){
 			newdf=multiparents[y,]
 			newdf=data.frame(newdf,child2=multilabs$cluster,row.names=NULL)
 			newdf
-		})				
+		})
 		do.call(rbind,multichild)
 	})
 
@@ -219,7 +219,7 @@ move_events_df=function(track,allremains=F){
 
 	#reorder based on move ID, then slice
 	comorigins=comorigins[order(comorigins$moveid),]
-	comorigins=comorigins[order(comorigins$slice),]	
+	comorigins=comorigins[order(comorigins$slice),]
 
 	#where we have identical splits between and merges between groups set type to move
 	comorigins$type[comorigins$moveid%in%comorigins$moveid[duplicated(comorigins$moveid)]]="move"
@@ -245,14 +245,14 @@ move_events_df=function(track,allremains=F){
   	  missinggroups=allgroups[!allgroups%in%comorigins$child[comorigins$slice==x]&allgroups%in%allprevgroups]
   	  if(length(missinggroups)>0){
   	    	df1=data.frame(slice=x,parent=missinggroups,child=missinggroups,type="remain")
-		
+
 		parent2=data.frame(type=I("parent"),slice=x,get_cluster_names(track,
 			inputnames=unique(df1$parent[df1$slice==x]),
 			x-1))
 		child2=data.frame(type=I("child"),slice=x,get_cluster_names(track,
 			inputnames=unique(df1$child[df1$slice==x]),
 			x))
-		grouplabs=rbind(parent2,child2)		
+		grouplabs=rbind(parent2,child2)
 
 		#check for missing GROUPS that have been assigned to the same DC
 
@@ -270,9 +270,9 @@ move_events_df=function(track,allremains=F){
 			newdf=multiparents[y,]
 			newdf=data.frame(newdf,child2=multilabs$cluster,row.names=NULL)
 			newdf
-		})				
+		})
 		multichild=do.call(rbind,multichild)
-		multichild$moveid=paste(multichild$slice,multichild$parent,multichild$child,multichild$parent2,multichild$child2)	
+		multichild$moveid=paste(multichild$slice,multichild$parent,multichild$child,multichild$parent2,multichild$child2)
 		return(multichild)
   	  }
 
@@ -299,7 +299,7 @@ move_events_df=function(track,allremains=F){
 		length(cmembers)
 	})
 
-	#remove moves with zero members 
+	#remove moves with zero members
 	comorigins=comorigins[comorigins$size>0,]
 
 
@@ -329,7 +329,7 @@ move_events_df=function(track,allremains=F){
 #'   community membership in a different way.
 #'
 #'    The first object 'memdf1' is a dataframe giving timestep, individual ID,
-#'    dynamic community membership and internal group ID as 4 columns. 
+#'    dynamic community membership and internal group ID as 4 columns.
 #'	This is useful for computation.
 #'
 #'    The second object 'memdf2' is a matrix with a row for
@@ -606,14 +606,12 @@ get_alluvialplot=function(track,allcols=NULL,
 
     if(is.null(rstop)){
       rstop=length(track$dcs)
-    }else{
-	rstop=rstop+1
-	}
+    }
     if(is.null(rstart)){
       rstart=0
     }else{
-	rstart=rstart-1
-	}
+	    rstart=rstart-1
+	  }
     if(is.null(rlabels)){
       rlabels=c(1:length(track$dcs))
     }
