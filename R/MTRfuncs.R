@@ -606,10 +606,14 @@ get_alluvialplot=function(track,allcols=NULL,
 
     if(is.null(rstop)){
       rstop=length(track$dcs)
-    }
+    }else{
+	rstop=rstop+1
+	}
     if(is.null(rstart)){
       rstart=0
-    }
+    }else{
+	rstart=rstart-1
+	}
     if(is.null(rlabels)){
       rlabels=c(1:length(track$dcs))
     }

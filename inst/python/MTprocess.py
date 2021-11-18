@@ -51,6 +51,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 		#print (new_cols)
 		fluxfacecolor=new_cols
 	
+	timestepit=iter(range(rstart, rstop))
 
 	#define figure size 
 	fig1 = plt.figure(figsize=(figwidth,figheight),dpi=600)
@@ -62,6 +63,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 
 	mt.get_alluvialdiagram(
 		ax,
+		iterator = timestepit,
 		invisible_x=not with_xaxis,
 		cluster_width= cwidth,
 		cluster_facecolor=cols,
@@ -78,7 +80,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 		)
 
 	ax.set_aspect('auto')
-	ax.set_xlim([rstart, rstop])
+	#ax.set_xlim([rstart, rstop])
 	plt.subplots_adjust(left=rmargins[0], bottom=rmargins[1], right=rmargins[2], top=rmargins[3], wspace=0, hspace=0)
 	rlabels=list(rlabels)
 
