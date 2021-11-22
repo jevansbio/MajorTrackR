@@ -657,7 +657,7 @@ This is the simplest type of alluvial plot:
 
 
 
-  get_alluvialplot(track,cols)
+  get_alluvialplot(track,cols,rstart=2,rstop=6)
   
 
 ```

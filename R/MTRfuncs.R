@@ -615,6 +615,8 @@ get_alluvialplot=function(track,allcols=NULL,
     if(is.null(rlabels)){
       rlabels=c(1:length(track$dcs))
     }
+    cat(c(rstart,rstop))
+    cat("\n")
 
     mt$R_make_figure(track,cols2,figwidth,figheight,rmargins=rmargins,rstart=rstart,rstop=rstop,cwidth=cwidth,clusterlw=clusterlw,rlabels=rlabels,
                 exportfilename=exportfilename,labelsize=labelsize,
@@ -630,9 +632,14 @@ get_alluvialplot=function(track,allcols=NULL,
       newmai=c(rmargins[2]*rimsize[2],
                (rmargins[1]*rimsize[1])+(cwidth*((1+rstart)-1)),
                (1-rmargins[4])*rimsize[2],
-               ((1-rmargins[3])*rimsize[1])+(cwidth*((rstop)-length(track$dcs)))
+               ((1-rmargins[3])*rimsize[1])+(cwidth*((rstop)))
       )
-      print(newmai)
+      cat(paste(rmargins))
+      cat("\n")
+      cat(paste(rimsize))
+      cat("\n")
+      cat(newmai)
+      cat("\n")
       graphics::par(mai=newmai,new=T)
       graphics::plot(0,type="n",xaxs="i",yaxs="i",xlim=c(rstart+1.5,rstop+1.5)-1,ylim=c(0,1),xlab="",ylab="",axes=F)
 

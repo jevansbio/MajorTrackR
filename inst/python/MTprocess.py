@@ -50,7 +50,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 			new_cols[i]=temp_dict
 		#print (new_cols)
 		fluxfacecolor=new_cols
-	
+	print("timestepint",flush = True)
 	timestepit=range(int(rstart), int(rstop))
 
 	#define figure size 
@@ -60,7 +60,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 	ax.axis('equal')
 	with_xaxis=True
 	plt.margins(0)
-
+	print("axis",flush = True)
 	mt.get_alluvialdiagram(
 		ax,
 		iterator = timestepit,
@@ -81,14 +81,15 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 
 	ax.set_aspect('auto')
 	ax.set_xlim([rstart, rstop])
+	print("timestepint",flush = True)
 	plt.subplots_adjust(left=rmargins[0], bottom=rmargins[1], right=rmargins[2], top=rmargins[3], wspace=0, hspace=0)
 	rlabels=list(rlabels)
 
 	if with_xaxis:
 		tp = [(t + .5*(mt.slice_widths[i])) + 0*cwidth
-			for i, t in enumerate(mt.timepoints)]
+			for i, t in enumerate(timestepit)]
 		ax.set_xticks(tp, minor=False)
-		ax.set_xticklabels(rlabels,
+		ax.set_xticklabels(rlabels[int(rstart):int(rstop)],
 			minor=False,
 			size=l_size,
 			horizontalalignment='center'
