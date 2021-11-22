@@ -80,7 +80,7 @@ def R_make_figure(mt,cols,figwidth,figheight,rmargins,rstop,rlabels,exportfilena
 		)
 
 	ax.set_aspect('auto')
-	#ax.set_xlim([rstart, rstop])
+	ax.set_xlim([rstart, rstop])
 	plt.subplots_adjust(left=rmargins[0], bottom=rmargins[1], right=rmargins[2], top=rmargins[3], wspace=0, hspace=0)
 	rlabels=list(rlabels)
 
