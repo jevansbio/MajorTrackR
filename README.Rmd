@@ -91,7 +91,7 @@ See: https://arxiv.org/abs/1912.04261 for associated paper.
 
 ## Installation
 
-MajorTrackR requires a python install (3+) with MajorTrackR installed. Most common scientific python distributions such as Anaconda sould be fine. Once you have python installed, you can install MajorTrack from the [github repository](https://github.com/j-i-l/MajorTrack). Using pip is the easiest way to do this:
+MajorTrackR requires a python install (3+) with MajorTrackR installed. Most common scientific python distributions such as Anaconda should be fine. Once you have python installed, you can install MajorTrack from the [github repository](https://github.com/j-i-l/MajorTrack). Using pip is the easiest way to do this:
 
 ```{bash,eval=FALSE}
 pip install --upgrade git+https://github.com/j-i-l/majortrack.git
@@ -286,6 +286,7 @@ for(i in 1:length(allnets)){
        edge.width=E(currnet)$weight,edge.color=edgecols)
 }
 ```
+
 ## 3. Running MajorTrack
 
 To run MajorTrack we need  We also specify the history, start and stop parameters. We'll investigate history some more in a moment, but start and stop are fairly straightforward. If no stop is provided, the algorithm will just run to the end of the timesteps. 
@@ -610,7 +611,7 @@ However there is definitely a better way of visualising this change over time.
 
 ## 6. Alluvial plots for visualising flow between dynamic communities.
 
-MajorTrack comes with a method for plotting the flow of individuals between dynamic communities using [alluvial plots](https://en.wikipedia.org/wiki/Alluvial_diagram). There are a few packages for doing alluvial plots within R that I have experimented with, but so far I have found they don't deal well with things like changing population size. 
+MajorTrack uses the python package [pyAlluv](https://github.com/j-i-l/pyAlluv) for plotting the flow of individuals between dynamic communities using [alluvial plots](https://en.wikipedia.org/wiki/Alluvial_diagram). There are a few packages for doing alluvial plots within R that I have experimented with, but so far I have found they don't deal well with things like changing population size. 
 
 The R function for the MT alluvial plots is a wrapper for the python plotting functions. It will run some python code, export an image then bring it back into R. By default the image file will then be removed.
 

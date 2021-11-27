@@ -13,7 +13,7 @@ See: <https://arxiv.org/abs/1912.04261> for associated paper.
 ## Installation
 
 MajorTrackR requires a python install (3+) with MajorTrackR installed.
-Most common scientific python distributions such as Anaconda sould be
+Most common scientific python distributions such as Anaconda should be
 fine. Once you have python installed, you can install MajorTrack from
 the [github repository](https://github.com/j-i-l/MajorTrack). Using pip
 is the easiest way to do this:
@@ -91,6 +91,7 @@ consistently over time is one of the main advantages of majortrack
 <img src="man/figures/README-plotting2-1.png" title="All networks with communities, consistent layout" alt="All networks with communities, consistent layout" width="100%" />
 
 <img src="man/figures/README-plotting2-2.png" title="All networks with communities, per-timestep layout" alt="All networks with communities, per-timestep layout" width="100%" />
+
 ## 3. Running MajorTrack
 
 To run MajorTrack we need We also specify the history, start and stop
@@ -338,8 +339,9 @@ time.
 
 ## 6. Alluvial plots for visualising flow between dynamic communities.
 
-MajorTrack comes with a method for plotting the flow of individuals
-between dynamic communities using [alluvial
+MajorTrack uses the python package
+[pyAlluv](https://github.com/j-i-l/pyAlluv) for plotting the flow of
+individuals between dynamic communities using [alluvial
 plots](https://en.wikipedia.org/wiki/Alluvial_diagram). There are a few
 packages for doing alluvial plots within R that I have experimented
 with, but so far I have found they don’t deal well with things like
