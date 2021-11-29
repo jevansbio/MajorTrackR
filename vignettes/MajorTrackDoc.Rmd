@@ -707,6 +707,8 @@ Control of the initial size of the exported file is controlled using the figwidt
 
 You can also control the width of the DCs at each timestep with the cwidth argument, where 1 results in no gap between timesteps and 0 makes the clusters disappear.
 
+Finally you can subset which timesteps get plotted using the rstart and rstop arguments.
+
 
 ```{r alluvial6,dpi=600,fig.width=7,fig.height=2,out.width="100%"}
   get_alluvialplot(track,cols,fluxsinglecol = F,fluxbysource = T, fluxsinglecolremain = T,
