@@ -196,16 +196,16 @@ MajorTrack run with a history parameter of 1.
 ``` r
 comorigins = move_events_df(track)
 head(comorigins, 9)#just the first two timesteps
-#>    slice parent child   type moveid size
-#> 1      2      1     2   move  2 1 2   45
-#> 2      2      1     4  split  2 1 4    5
-#> 27     2      2     2 remain  2 2 2   50
-#> 28     3      0     0 remain  3 0 0   50
-#> 3      3      2     2 remain  3 2 2   45
-#> 4      3      2     5  split  3 2 5   25
-#> 5      3      2     6  split  3 2 6   25
-#> 6      3      3     0   move  3 3 0   10
-#> 7      3      3     2   move  3 3 2   10
+#>    slice parent child   type parent2 child2    moveid size
+#> 1      2      1     2 remain       1      1 2 1 2 1 1   45
+#> 2      2      1     4  split       1      2 2 1 4 1 2    5
+#> 4      2      2     2  merge       2      1 2 2 2 2 1   50
+#> 11     3      0     0 remain       0      0 3 0 0 0 0   50
+#> 5      3      2     2   move       1      2 3 2 2 1 2   45
+#> 6      3      2     5 remain       1      1 3 2 5 1 1   25
+#> 7      3      2     6  split       1      3 3 2 6 1 3   25
+#> 8      3      3     0   move       3      0 3 3 0 3 0   10
+#> 9      3      3     2   move       3      2 3 3 2 3 2   10
 ```
 
 <img src="man/figures/README-plotting7-1.png" title="All networks with dynamic communities showing identifiers, fixed layout" alt="All networks with dynamic communities showing identifiers, fixed layout" width="100%" />
@@ -225,16 +225,16 @@ the longer history parameter.
 ``` r
 comorigins2 = move_events_df(track2)
 head(comorigins2, 9)#just the first two timesteps
-#>    slice parent child   type moveid size
-#> 1      2      1     2   move  2 1 2   45
-#> 2      2      1     4  split  2 1 4    5
-#> 24     2      2     2 remain  2 2 2   50
-#> 25     3      0     0 remain  3 0 0   50
-#> 3      3      2     2 remain  3 2 2   70
-#> 4      3      2     6  split  3 2 6   25
-#> 5      3      3     0   move  3 3 0   10
-#> 6      3      3     2   move  3 3 2   10
-#> 7      3      3     3 remain  3 3 3   30
+#>    slice parent child   type parent2 child2    moveid size
+#> 1      2      1     2 remain       1      1 2 1 2 1 1   45
+#> 2      2      1     4  split       1      2 2 1 4 1 2    5
+#> 4      2      2     2  merge       2      1 2 2 2 2 1   50
+#> 12     3      0     0 remain       0      0 3 0 0 0 0   50
+#> 5      3      2     2 remain       1      1 3 2 2 1 1   25
+#> 6      3      2     2   move       1      2 3 2 2 1 2   45
+#> 7      3      2     6  split       1      3 3 2 6 1 3   25
+#> 8      3      3     0   move       3      0 3 3 0 3 0   10
+#> 10     3      3     2   move       3      2 3 3 2 3 2   10
 ```
 
 <img src="man/figures/README-plotting6-1.png" title="All networks with dynamic communities showing identifiers, fixed layout" alt="All networks with dynamic communities showing identifiers, fixed layout" width="100%" />
@@ -267,12 +267,12 @@ individual ID and DC membership as 3 columns:
 ``` r
 head(indmembership$memdf1)
 #>    id timestep group
-#> 33 33        1     0
+#> 13 13        1     0
+#> 44 44        1     0
+#> 7   7        1     0
+#> 36 36        1     0
 #> 29 29        1     0
-#> 40 40        1     0
-#> 32 32        1     0
-#> 28 28        1     0
-#> 46 46        1     0
+#> 15 15        1     0
 ```
 
 This is useful for computation. For example, per timestep group size:
@@ -321,12 +321,12 @@ time.
 ``` r
 head(indmembership$memdf2)
 #>    1 2 3 4 5 6
-#> 33 0 0 0 0 8 6
+#> 13 0 0 0 0 8 6
+#> 44 0 0 0 0 6 6
+#> 7  0 0 0 7 0 6
+#> 36 0 0 0 0 8 6
 #> 29 0 0 0 0 8 6
-#> 40 0 0 0 0 6 6
-#> 32 0 0 0 0 8 6
-#> 28 0 0 0 0 8 6
-#> 46 0 0 0 0 6 6
+#> 15 0 0 0 0 8 6
 ```
 
 We could even visualise it. This is a plot using the plot.matrix
@@ -424,13 +424,18 @@ You can also control the width of the DCs at each timestep with the
 cwidth argument, where 1 results in no gap between timesteps and 0 makes
 the clusters disappear.
 
+Finally you can subset which timesteps get plotted using the rstart and
+rstop arguments.
+
 ``` r
   get_alluvialplot(track,cols,fluxsinglecol = F,fluxbysource = T, fluxsinglecolremain = T,
                    rlabels=c("a","b","c","d","e","f"),
                    rmargins = c(0.2,0.2,0.8,0.8),
                    figwidth=7,figheight=2,
                    cwidth=0.1,
-                   labelsize=5
+                   labelsize=5,
+                                 rstart=2,
+                                 rstop=4
                    )
 ```
 
